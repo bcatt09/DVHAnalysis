@@ -93,8 +93,11 @@ namespace VMS.TPS
 			Limit = ConstraintParsing.ExtractNumber(constraint.Attribute("limit").Value);
 			VariationLimit = constraint.Attribute("variation-limit") == null ? -1 : ConstraintParsing.ExtractNumber(constraint.Attribute("variation-limit").Value);
 			LimitUnits = ConstraintParsing.ExtractUnits(constraint.Attribute("limit").Value);
-			Endpoint = constraint.Attribute("endpoint") == null ? "" : constraint.Attribute("endpoint").Value;
-			Reference = constraint.Attribute("reference") == null ? "" : constraint.Attribute("reference").Value;
+			Endpoint = constraint.Attribute("endpoint") == null ? "" : "Endpoint: " + constraint.Attribute("endpoint").Value;
+			Reference = constraint.Attribute("reference") == null ? "" : "Reference: " + constraint.Attribute("reference").Value;
+
+			if (Endpoint != "" && Reference != "")
+				Endpoint += "\n";
 
 			//compute results
 			ComputePlanValues();

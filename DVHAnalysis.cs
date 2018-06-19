@@ -79,7 +79,7 @@ namespace VMS.TPS
 
 			window.Content = userControl;
 			window.DataContext = viewModel;
-			//userControl.PlanInfoListBox.DataContext = viewModel.Plans;
+			userControl.PlanInfoListBox.DataContext = viewModel.Plans;
 			userControl.DVHDataGrid.DataContext = viewModel.DVHTable;
 
 			/*DVHData dvhData = pItem.GetDVHCumulativeData((from s in (pItem as PlanSetup).StructureSet.Structures where s.Id == (pItem as PlanSetup).TargetVolumeID select s).First(),

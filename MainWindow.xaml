@@ -11,45 +11,25 @@
 		<DataGridTextColumn x:Key="VariationConstraintColumn" Header="Variation Constraint" Binding="{Binding VariationConstraintText}" Visibility="{Binding Source={x:Reference DVHAnalysisWindow}, Path=DataContext.VariationConstraintColumnVisibility}"/>
 		<DataGridTextColumn x:Key="VariationLimitColumn" Header="Variation Limit" Binding="{Binding VariationLimitText}" Visibility="{Binding Source={x:Reference DVHAnalysisWindow}, Path=DataContext.VariationLimitColumnVisibility}"/>
 		<DataTemplate x:Key="planDetailsTemplate">
-			<Border Name="border" BorderBrush="White" BorderThickness="1" Padding="5" Margin="5,5,5,10">
-				<Grid Background="AliceBlue">
-					<Grid.RowDefinitions>
-						<RowDefinition/>
-						<RowDefinition/>
-						<RowDefinition/>
-						<RowDefinition/>
-						<RowDefinition/>
-						<RowDefinition/>
-					</Grid.RowDefinitions>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition/>
-						<ColumnDefinition/>
-						<ColumnDefinition/>
-						<ColumnDefinition/>
-					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Path=PlanID}" FontWeight="Bold"/>
-					<TextBlock Grid.Row="1" Grid.Column="0" Text="Target Volume ID:"/>
-					<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=TargetVolumeID}"/>
-					<TextBlock Grid.Row="2" Grid.Column="0" Text="Total Dose Planned:"/>
-					<TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Path=TotalPlannedDose}"/>
-					<TextBlock Grid.Row="3" Grid.Column="0" Text="Dose / Fraction:"/>
-					<TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Path=DosePerFraction}"/>
-					<TextBlock Grid.Row="4" Grid.Column="0" Text="Number of Fractions:"/>
-					<TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Path=NumberOfFractions}"/>
-					<TextBlock Grid.Row="5" Grid.Column="0" Text="Prescribed Percentage:"/>
-					<TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Path=PrescribedPercentage}"/>
-
-
-					<TextBlock Grid.Row="1" Grid.Column="2" Text="Technique:"/>
-					<TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Path=Technique}"/>
-					<TextBlock Grid.Row="3" Grid.Column="2" Text="Approval Status:"/>
-					<TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding Path=ApprovalStatus}"/>
-					<TextBlock Grid.Row="4" Grid.Column="2" Text="Modification by:"/>
-					<TextBlock Grid.Row="4" Grid.Column="3" Text="{Binding Path=ModifiedBy}"/>
-					<TextBlock Grid.Row="5" Grid.Column="2" Text="Modification Date/Time:"/>
-					<TextBlock Grid.Row="5" Grid.Column="3" Text="{Binding Path=ModifiedTime}"/>
-				</Grid>
-			</Border>
+			<Grid Background="AliceBlue">
+				<Grid.RowDefinitions>
+					<RowDefinition/>
+					<RowDefinition/>
+					<RowDefinition/>
+					<RowDefinition/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="115"/>
+					<ColumnDefinition Width="75"/>
+				</Grid.ColumnDefinitions>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Path=PlanID}" FontWeight="Bold"/>
+				<TextBlock Grid.Row="1" Grid.Column="0" Text="Total Dose Planned:"/>
+				<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=TotalPlannedDose}"/>
+				<TextBlock Grid.Row="2" Grid.Column="0" Text="Dose / Fraction:"/>
+				<TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Path=DosePerFraction}"/>
+				<TextBlock Grid.Row="3" Grid.Column="0" Text="Number of Fractions:"/>
+				<TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Path=NumberOfFractions}"/>
+			</Grid>
 		</DataTemplate>
 	</UserControl.Resources>
 	<Grid Name="mainGrid" Height="auto" Width="auto">
@@ -65,7 +45,13 @@
 		<TextBlock HorizontalAlignment="Left" Margin="130,85,0,0" TextWrapping="Wrap" Text="{Binding Path=PlanID, Mode=OneWay}" VerticalAlignment="Top"/>
 		<TextBox HorizontalAlignment="Left" Margin="130,110,0,0" TextWrapping="Wrap" Text="{Binding PlanSumTotalDoseText}" VerticalAlignment="Top" Visibility="{Binding PlanSumDoseVisibility}"/>
 
-		<!--ListBox Height="auto" Margin="695,377,10,10" Name="PlanInfoListBox" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" HorizontalContentAlignment="Stretch" BorderBrush="White" MinHeight="10"/-->
+		<ListBox HorizontalAlignment="Right" VerticalAlignment="Top" Height="83" Width="Auto" Background="AliceBlue" Name="PlanInfoListBox" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" MaxWidth="400" Margin="0,46,26,0">
+			<ListBox.ItemsPanel>
+				<ItemsPanelTemplate>
+					<VirtualizingStackPanel Width="Auto" HorizontalAlignment="Right" IsItemsHost="True" Orientation="Horizontal"/>
+				</ItemsPanelTemplate>
+			</ListBox.ItemsPanel>
+		</ListBox>
 
 		<ComboBox HorizontalAlignment="Left" Margin="303,10,0,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
 		<ComboBox HorizontalAlignment="Left" Margin="436,10,0,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Protocols}" SelectedItem="{Binding SelectedProtocol}"/>
@@ -103,7 +89,7 @@
 				<DataTemplate>
 					<TextBlock>
 						<TextBlock.Text>
-							<MultiBinding StringFormat="{}Endpoint: {0}&#x0a;Reference: {1}">
+							<MultiBinding StringFormat="{}{0}{1}">
 								<Binding Path="Endpoint" />
 								<Binding Path="Reference" />
 							</MultiBinding>
