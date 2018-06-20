@@ -6,7 +6,7 @@
              mc:Ignorable="d"
              xmlns:local="clr-namespace:VMS.TPS"
              Name="DVHAnalysisWindow" 
-             d:DesignHeight="512" Width="750">
+             d:DesignHeight="512" d:DesignWidth="750">
 	<UserControl.Resources>
 		<DataGridTextColumn x:Key="VariationConstraintColumn" Header="Variation Constraint" Binding="{Binding VariationConstraintText}" Visibility="{Binding Source={x:Reference DVHAnalysisWindow}, Path=DataContext.VariationConstraintColumnVisibility}"/>
 		<DataGridTextColumn x:Key="VariationLimitColumn" Header="Variation Limit" Binding="{Binding VariationLimitText}" Visibility="{Binding Source={x:Reference DVHAnalysisWindow}, Path=DataContext.VariationLimitColumnVisibility}"/>
@@ -32,7 +32,7 @@
 			</Grid>
 		</DataTemplate>
 	</UserControl.Resources>
-	<Grid Name="mainGrid" Height="auto" Width="auto">
+	<Grid Name="mainGrid" Height="auto" Width="auto" HorizontalAlignment="Center" VerticalAlignment="Center">
 		<TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Patient Name:" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="10,35,0,0" TextWrapping="Wrap" Text="Patient ID:" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="10,60,0,0" TextWrapping="Wrap" Text="Course ID:" VerticalAlignment="Top"/>
@@ -45,7 +45,7 @@
 		<TextBlock HorizontalAlignment="Left" Margin="130,85,0,0" TextWrapping="Wrap" Text="{Binding Path=PlanID, Mode=OneWay}" VerticalAlignment="Top"/>
 		<TextBox HorizontalAlignment="Left" Margin="130,110,0,0" TextWrapping="Wrap" Text="{Binding PlanSumTotalDoseText}" VerticalAlignment="Top" Visibility="{Binding PlanSumDoseVisibility}" KeyDown="TextBox_KeyDown"/>
 
-		<ListBox HorizontalAlignment="Right" VerticalAlignment="Top" Height="83" Width="Auto" Background="LightGray" Name="PlanInfoListBox" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" MaxWidth="410" Margin="0,46,26,0">
+		<ListBox HorizontalAlignment="Right" VerticalAlignment="Top" Height="83" Width="Auto" Background="LightGray" Name="PlanInfoListBox" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" MaxWidth="410" Margin="0,46,10,0">
 			<ListBox.ItemsPanel>
 				<ItemsPanelTemplate>
 					<VirtualizingStackPanel Width="Auto" HorizontalAlignment="Right" IsItemsHost="True" Orientation="Horizontal"/>
@@ -53,10 +53,10 @@
 			</ListBox.ItemsPanel>
 		</ListBox>
 
-		<ComboBox Name="CategorySelect" HorizontalAlignment="Left" Margin="303,10,0,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
-		<ComboBox HorizontalAlignment="Left" Margin="436,10,0,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Protocols}" SelectedItem="{Binding SelectedProtocol}"/>
+		<ComboBox Name="CategorySelect" HorizontalAlignment="Right" Margin="0,10,183,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
+		<ComboBox HorizontalAlignment="Right" Margin="0,10,58,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Protocols}" SelectedItem="{Binding SelectedProtocol}"/>
 
-		<DataGrid Name="DVHDataGrid" Background="Green" HorizontalAlignment="Left" Height="auto" Width="auto" Margin="10,142,0,0" VerticalAlignment="Top" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" GridLinesVisibility="None" MouseLeftButtonUp="dataGridMouseLeftButton">
+		<DataGrid Name="DVHDataGrid" Background="Green" HorizontalAlignment="Left" Height="auto" Width="auto" Margin="10,142,10,10" VerticalAlignment="Top" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" GridLinesVisibility="None" MouseLeftButtonUp="dataGridMouseLeftButton">
 			<DataGrid.Columns>
 				<DataGridTemplateColumn Header="Structure">
 					<DataGridTemplateColumn.CellTemplate>
@@ -112,7 +112,7 @@
 				</Style>
 			</DataGrid.Resources>
 		</DataGrid>
-		<Button Name="printButton" Content="Print" HorizontalAlignment="Right" Height="21" Margin="0,10,26,0" VerticalAlignment="Top" Width="35" Click="printButton_Click"/>
+		<Button Name="printButton" Content="Print" HorizontalAlignment="Right" Height="19" Margin="0,10,10,0" VerticalAlignment="Top" Width="35" Click="printButton_Click"/>
 		<!--Canvas Margin="695,0,-191,159">
 			<Border BorderThickness="1" BorderBrush="Black" Height="307" Canvas.Left="25" Canvas.Top="19" Width="465">
 				<Canvas x:Uid="DVHCanvas" x:Name="DVHCanvas" Margin="0,0,-1,-1"/>
