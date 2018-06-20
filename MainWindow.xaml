@@ -11,7 +11,7 @@
 		<DataGridTextColumn x:Key="VariationConstraintColumn" Header="Variation Constraint" Binding="{Binding VariationConstraintText}" Visibility="{Binding Source={x:Reference DVHAnalysisWindow}, Path=DataContext.VariationConstraintColumnVisibility}"/>
 		<DataGridTextColumn x:Key="VariationLimitColumn" Header="Variation Limit" Binding="{Binding VariationLimitText}" Visibility="{Binding Source={x:Reference DVHAnalysisWindow}, Path=DataContext.VariationLimitColumnVisibility}"/>
 		<DataTemplate x:Key="planDetailsTemplate">
-			<Grid Background="AliceBlue">
+			<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition/>
 					<RowDefinition/>
@@ -43,9 +43,9 @@
 		<TextBlock HorizontalAlignment="Left" Margin="130,35,0,0" TextWrapping="Wrap" Text="{Binding Path=PatientID, Mode=OneWay}" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="130,60,0,0" TextWrapping="Wrap" Text="{Binding Path=CourseID, Mode=OneWay}" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="130,85,0,0" TextWrapping="Wrap" Text="{Binding Path=PlanID, Mode=OneWay}" VerticalAlignment="Top"/>
-		<TextBox HorizontalAlignment="Left" Margin="130,110,0,0" TextWrapping="Wrap" Text="{Binding PlanSumTotalDoseText}" VerticalAlignment="Top" Visibility="{Binding PlanSumDoseVisibility}"/>
+		<TextBox HorizontalAlignment="Left" Margin="130,110,0,0" TextWrapping="Wrap" Text="{Binding PlanSumTotalDoseText}" VerticalAlignment="Top" Visibility="{Binding PlanSumDoseVisibility}" KeyDown="TextBox_KeyDown"/>
 
-		<ListBox HorizontalAlignment="Right" VerticalAlignment="Top" Height="83" Width="Auto" Background="AliceBlue" Name="PlanInfoListBox" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" MaxWidth="400" Margin="0,46,26,0">
+		<ListBox HorizontalAlignment="Right" VerticalAlignment="Top" Height="83" Width="Auto" Background="LightGray" Name="PlanInfoListBox" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" MaxWidth="410" Margin="0,46,26,0">
 			<ListBox.ItemsPanel>
 				<ItemsPanelTemplate>
 					<VirtualizingStackPanel Width="Auto" HorizontalAlignment="Right" IsItemsHost="True" Orientation="Horizontal"/>
@@ -53,10 +53,10 @@
 			</ListBox.ItemsPanel>
 		</ListBox>
 
-		<ComboBox HorizontalAlignment="Left" Margin="303,10,0,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
+		<ComboBox Name="CategorySelect" HorizontalAlignment="Left" Margin="303,10,0,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
 		<ComboBox HorizontalAlignment="Left" Margin="436,10,0,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Protocols}" SelectedItem="{Binding SelectedProtocol}"/>
 
-		<DataGrid Name="DVHDataGrid" HorizontalAlignment="Left" Height="auto" Width="auto" Margin="10,142,0,0" VerticalAlignment="Top" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" GridLinesVisibility="None" MouseLeftButtonUp="dataGridMouseLeftButton">
+		<DataGrid Name="DVHDataGrid" Background="Green" HorizontalAlignment="Left" Height="auto" Width="auto" Margin="10,142,0,0" VerticalAlignment="Top" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" GridLinesVisibility="None" MouseLeftButtonUp="dataGridMouseLeftButton">
 			<DataGrid.Columns>
 				<DataGridTemplateColumn Header="Structure">
 					<DataGridTemplateColumn.CellTemplate>
@@ -87,7 +87,7 @@
 			</DataGrid.Columns>
 			<DataGrid.RowDetailsTemplate>
 				<DataTemplate>
-					<TextBlock>
+					<TextBlock Background="WhiteSmoke">
 						<TextBlock.Text>
 							<MultiBinding StringFormat="{}{0}{1}">
 								<Binding Path="Endpoint" />
@@ -97,6 +97,20 @@
 					</TextBlock>
 				</DataTemplate>
 			</DataGrid.RowDetailsTemplate>
+			<DataGrid.RowBackground>
+				<SolidColorBrush Color="LightGray"/>
+			</DataGrid.RowBackground>
+			<DataGrid.Resources>
+				<SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="LightGray" />
+				<Style TargetType="{x:Type DataGridCell}">
+					<Style.Triggers>
+						<Trigger Property="DataGridCell.IsSelected" Value="True">
+							<Setter Property="Background" Value="LightGray" />
+							<Setter Property="Foreground" Value="Black" />
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</DataGrid.Resources>
 		</DataGrid>
 		<Button Name="printButton" Content="Print" HorizontalAlignment="Right" Height="21" Margin="0,10,26,0" VerticalAlignment="Top" Width="35" Click="printButton_Click"/>
 		<!--Canvas Margin="695,0,-191,159">

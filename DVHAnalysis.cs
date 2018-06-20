@@ -43,7 +43,7 @@ namespace VMS.TPS
 
 			myWindow = window;
 			window.KeyDown += KeyPressed;
-			window.Background = System.Windows.Media.Brushes.AliceBlue;
+			window.Background = System.Windows.Media.Brushes.DarkGray;
 
 			Start(context.Patient, PItemsInScope, openedPItem, context.Course, context.StructureSet, context.CurrentUser, window);
 		}

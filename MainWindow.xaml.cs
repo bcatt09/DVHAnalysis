@@ -71,6 +71,16 @@ namespace VMS.TPS
 			DVHDataGrid.SelectedIndex = -1;
 		}
 
+		private void TextBox_KeyDown(object sender, KeyEventArgs e)
+		{
+
+			if (e.Key == Key.Enter)
+			{
+				((TextBox)sender).MoveFocus(new TraversalRequest(FocusNavigationDirection.Previous));
+				Keyboard.ClearFocus();
+			}
+		}
+
 
 
 
