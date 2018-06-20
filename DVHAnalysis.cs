@@ -71,8 +71,7 @@ namespace VMS.TPS
 				throw new ApplicationException("Please open a plan or a plan sum before running this script");
 			}
 			window.Title = "DVH Analysis - " + pat.LastName + ", " + pat.FirstName + " (" + pat.Id + ")";
-			window.Width = 750;
-			window.Height = 955;
+			window.SizeToContent = SizeToContent.WidthAndHeight;
 
 			MainWindow userControl = new MainWindow();
 			DVHViewModel viewModel = new DVHViewModel(pat, pItem, course, ss);
