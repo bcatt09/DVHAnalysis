@@ -9,8 +9,7 @@ namespace VMS.TPS
 	//class that handles getting values of constraints from the xml file for comparing doses
 	public static class  ConstraintList
 	{
-		//private static String xmlFileLocation = @"\\10.71.248.61\va_data$\ESAPI\Constraints.xml";
-		private static String xmlFileLocation = @"\\10.71.248.61\va_data$\ESAPI\Test Files\Constraints.xml";
+		private static String xmlFileLocation = @"\\10.71.248.61\va_data$\ESAPI\Constraints.xml";
 		private static XElement _protocolListRoot = XElement.Load(xmlFileLocation);
 
 		/// <summary>

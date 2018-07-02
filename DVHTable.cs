@@ -82,7 +82,7 @@ namespace VMS.TPS
 
 			//get info from xml
 			ConstraintText = constraint.Attribute("constraint").Value;
-			VariationConstraintText = constraint.Attribute("variation-constraint") == null ? "" : constraint.Attribute("goal").Value == "greater" ? "> " + constraint.Attribute("constraint").Value : "< " + constraint.Attribute("constraint").Value;
+			VariationConstraintText = constraint.Attribute("variation-constraint") == null ? "" : constraint.Attribute("variation-constraint").Value;
 			LimitText = constraint.Attribute("goal").Value == "greater" ? "> " + constraint.Attribute("limit").Value : "< " + constraint.Attribute("limit").Value;
 			VariationLimitText = constraint.Attribute("variation-limit") == null ? "" : constraint.Attribute("goal").Value == "greater" ? "> " + constraint.Attribute("variation-limit").Value : "< " + constraint.Attribute("variation-limit").Value;
 			ConstraintType = GetConstraintType(constraint);
@@ -127,7 +127,7 @@ namespace VMS.TPS
 					DoseValuePresentation dosePres = LimitUnits == "%" ? DoseValuePresentation.Relative : DoseValuePresentation.Absolute;
 					
 					DoseValue val = _viewModel.SelectedPlanningItem.GetDoseAtVolume(SelectedStructure, Constraint, volPres, dosePres, _viewModel.PlanSumTotalDose);
-					DoseValue varVal = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetDoseAtVolume(SelectedStructure, VariationConstraint, volPres, dosePres, _viewModel.PlanSumTotalDose) : new DoseValue();
+					DoseValue varVal = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetDoseAtVolume(SelectedStructure, VariationConstraint, volPres, dosePres, _viewModel.PlanSumTotalDose) : val;
 
 					//convert to correct units for display
 					if (!LimitUnits.Contains("%"))
@@ -149,17 +149,19 @@ namespace VMS.TPS
 					DoseValue.DoseUnit doseUnit = ConstraintUnits.ToLower().Contains("cgy") ? DoseValue.DoseUnit.cGy : DoseValue.DoseUnit.Gy;
 					
 					double vol = dosePres == DoseValuePresentation.Absolute ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, doseUnit), volPres) : _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, DoseValue.DoseUnit.Percent), volPres, _viewModel.PlanSumTotalDose);
-					double varVol = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(VariationConstraint, doseUnit), volPres, _viewModel.PlanSumTotalDose) : -1;
+					double varVol = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(VariationConstraint, doseUnit), volPres, _viewModel.PlanSumTotalDose) : vol;
 
 					PlanValue = Math.Round(vol, 1);
 					PlanValueText = PlanValue.ToString() + (volPres == VolumePresentation.Relative ? " %" : " cc");
+					PlanVariationValue = Math.Round(varVol, 1);
+					PlanVariationValueText = PlanVariationValue.ToString() + (volPres == VolumePresentation.Relative ? " %" : " cc");
 				}
 				else if (ConstraintType == ConstraintType.Mean)
 				{
 					DoseValuePresentation dosePres = dosePres = LimitUnits == "%" ? DoseValuePresentation.Relative : DoseValuePresentation.Absolute;
 
 					DoseValue val = _viewModel.SelectedPlanningItem.GetMeanDose(SelectedStructure, dosePres);
-					DoseValue varVal = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetMeanDose(SelectedStructure, dosePres) : new DoseValue();
+					DoseValue varVal = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetMeanDose(SelectedStructure, dosePres) : val;
 
 					//convert to correct units for display
 					if (!LimitUnits.Contains("%"))
@@ -170,13 +172,15 @@ namespace VMS.TPS
 
 					PlanValue = val.Dose;
 					PlanValueText = val.ToString();
+					PlanVariationValue = varVal.Dose;
+					PlanVariationValueText = varVal.ToString();
 				}
 				else if (ConstraintType == ConstraintType.Max)
 				{
 					DoseValuePresentation dosePres = dosePres = LimitUnits == "%" ? DoseValuePresentation.Relative : DoseValuePresentation.Absolute;
 
 					DoseValue val = _viewModel.SelectedPlanningItem.GetMaxDose(SelectedStructure, dosePres);
-					DoseValue varVal = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetMaxDose(SelectedStructure, dosePres) : new DoseValue();
+					DoseValue varVal = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetMaxDose(SelectedStructure, dosePres) : val;
 
 					//convert to correct units for display
 					if (!LimitUnits.Contains("%"))
@@ -187,13 +191,15 @@ namespace VMS.TPS
 
 					PlanValue = val.Dose;
 					PlanValueText = val.ToString();
+					PlanVariationValue = varVal.Dose;
+					PlanVariationValueText = varVal.ToString();
 				}
 				else if (ConstraintType == ConstraintType.Min)
 				{
 					DoseValuePresentation dosePres = dosePres = LimitUnits == "%" ? DoseValuePresentation.Relative : DoseValuePresentation.Absolute;
 
 					DoseValue val = _viewModel.SelectedPlanningItem.GetMinDose(SelectedStructure, dosePres);
-					DoseValue varVal = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetMinDose(SelectedStructure, dosePres) : new DoseValue();
+					DoseValue varVal = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetMinDose(SelectedStructure, dosePres) : val;
 
 					//convert to correct units for display
 					if (!LimitUnits.Contains("%"))
@@ -204,6 +210,8 @@ namespace VMS.TPS
 
 					PlanValue = val.Dose;
 					PlanValueText = val.ToString();
+					PlanVariationValue = varVal.Dose;
+					PlanVariationValueText = varVal.ToString();
 				}
 				else
 				{
@@ -222,9 +230,14 @@ namespace VMS.TPS
 				{
 					if (PlanValue >= Limit)
 						PlanResult = "Pass";
-					else if (VariationConstraint != -1)
+					//there is a plan variation limit
+					else if (VariationLimit != -1)
 					{
-						if (PlanValue >= VariationLimit)
+						//if it failed the normal constaint we will display the analysis of the variation constraint instead
+						if (VariationConstraint != -1)
+							PlanValueText = PlanVariationValueText;
+
+						if (PlanVariationValue >= VariationLimit)
 							PlanResult = "Acceptable Variation";
 						else
 							PlanResult = "Fail";
@@ -236,9 +249,14 @@ namespace VMS.TPS
 				{
 					if (PlanValue < Limit)
 						PlanResult = "Pass";
-					else if (VariationConstraint != -1)
+					//there is a plan variation limit
+					else if (VariationLimit != -1)
 					{
-						if (PlanValue < VariationLimit)
+						//if it failed the normal constaint we will display the analysis of the variation constraint instead
+						if (VariationConstraint != -1)
+							PlanValueText = PlanVariationValueText;
+
+						if (PlanVariationValue < VariationLimit)
 							PlanResult = "Acceptable Variation";
 						else
 							PlanResult = "Fail";
@@ -486,7 +504,7 @@ namespace VMS.TPS
 
 			if (!match.Success)
 			{
-				MessageBox.Show("Number could not be found: " + str, "Incorrect Constraint Format", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show("D/V, number, or unit could not be found: " + str, "Incorrect Constraint Format", MessageBoxButton.OK, MessageBoxImage.Error);
 				throw new FormatException("Incorrect constraint format, number could not be found: " + str);
 			}
 
@@ -505,7 +523,7 @@ namespace VMS.TPS
 
 			if (!match.Success)
 			{
-				MessageBox.Show("Incorrect constraint format, units could not be found: " + str, "Invalid Constraint Format", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show("D/V, number, or units could not be found: " + str, "Invalid Constraint Format", MessageBoxButton.OK, MessageBoxImage.Error);
 				throw new FormatException("Units could not be found: " + str);
 			}
 

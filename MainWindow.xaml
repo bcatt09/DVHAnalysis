@@ -32,7 +32,7 @@
 			</Grid>
 		</DataTemplate>
 	</UserControl.Resources>
-	<Grid Name="mainGrid" Height="auto" Width="auto" HorizontalAlignment="Center" VerticalAlignment="Center">
+	<Grid Name="mainGrid" Height="auto" Width="auto" MinWidth="700" HorizontalAlignment="Center" VerticalAlignment="Center">
 		<TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Patient Name:" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="10,35,0,0" TextWrapping="Wrap" Text="Patient ID:" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="10,60,0,0" TextWrapping="Wrap" Text="Course ID:" VerticalAlignment="Top"/>
@@ -45,7 +45,7 @@
 		<TextBlock HorizontalAlignment="Left" Margin="130,85,0,0" TextWrapping="Wrap" Text="{Binding Path=PlanID, Mode=OneWay}" VerticalAlignment="Top"/>
 		<TextBox HorizontalAlignment="Left" Margin="130,110,0,0" TextWrapping="Wrap" Text="{Binding PlanSumTotalDoseText}" VerticalAlignment="Top" Visibility="{Binding PlanSumDoseVisibility}" KeyDown="TextBox_KeyDown"/>
 
-		<ListBox HorizontalAlignment="Right" VerticalAlignment="Top" Height="83" Width="Auto" Background="LightGray" Name="PlanInfoListBox" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" MaxWidth="410" Margin="0,46,10,0">
+		<ListBox HorizontalAlignment="Right" VerticalAlignment="Top" Height="83" Width="Auto" MinWidth="100" Background="LightGray" Name="PlanInfoListBox" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" MaxWidth="410" Margin="10,46,10,0">
 			<ListBox.ItemsPanel>
 				<ItemsPanelTemplate>
 					<VirtualizingStackPanel Width="Auto" HorizontalAlignment="Right" IsItemsHost="True" Orientation="Horizontal"/>
@@ -56,7 +56,7 @@
 		<ComboBox Name="CategorySelect" HorizontalAlignment="Right" Margin="0,10,183,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
 		<ComboBox HorizontalAlignment="Right" Margin="0,10,58,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Protocols}" SelectedItem="{Binding SelectedProtocol}"/>
 
-		<DataGrid Name="DVHDataGrid" Background="Green" HorizontalAlignment="Left" Height="auto" Width="auto" Margin="10,142,10,10" VerticalAlignment="Top" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" GridLinesVisibility="None" MouseLeftButtonUp="dataGridMouseLeftButton">
+		<DataGrid Name="DVHDataGrid" Background="LightGray" HorizontalAlignment="Center" Height="auto" Width="auto" MinHeight="150" Margin="10,142,10,10" VerticalAlignment="Top" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" GridLinesVisibility="None" MouseLeftButtonUp="dataGridMouseLeftButton">
 			<DataGrid.Columns>
 				<DataGridTemplateColumn Header="Structure">
 					<DataGridTemplateColumn.CellTemplate>
