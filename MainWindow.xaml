@@ -90,8 +90,8 @@
 					<TextBlock Background="WhiteSmoke">
 						<TextBlock.Text>
 							<MultiBinding StringFormat="{}{0}{1}">
-								<Binding Path="Endpoint" />
 								<Binding Path="Reference" />
+								<Binding Path="Endpoint" />
 							</MultiBinding>
 						</TextBlock.Text>
 					</TextBlock>

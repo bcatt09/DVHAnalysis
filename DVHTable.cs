@@ -97,7 +97,7 @@ namespace VMS.TPS
 			Reference = constraint.Attribute("reference") == null ? "" : "Reference: " + constraint.Attribute("reference").Value;
 
 			if (Endpoint != "" && Reference != "")
-				Endpoint += "\n";
+				Reference += "\n";
 
 			//compute results
 			ComputePlanValues();
