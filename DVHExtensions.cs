@@ -32,8 +32,10 @@ namespace VMS.TPS
 
 		public static double GetVolumeAtDose(this PlanningItem pitem, Structure structure, DoseValue dose, VolumePresentation requestedVolumePresentation, DoseValue? planSumRx = null)
 		{
-			//Get units that the dose is represented in within Eclipse
-			DoseValue.DoseUnit systemUnits = pitem.GetDVHCumulativeData(structure, dose.Unit == DoseValue.DoseUnit.Percent ? DoseValuePresentation.Relative : DoseValuePresentation.Absolute, VolumePresentation.Relative, 1).MeanDose.Unit;
+			//Get units that the dose is represented in within Eclipse but can't call that function if it's requesting % for a plan sum, so if that's the case it must be set manually
+			DoseValue.DoseUnit systemUnits = DoseValue.DoseUnit.Percent;
+			if(dose.Unit != DoseValue.DoseUnit.Percent)
+				systemUnits = pitem.GetDVHCumulativeData(structure, dose.Unit == DoseValue.DoseUnit.Percent ? DoseValuePresentation.Relative : DoseValuePresentation.Absolute, VolumePresentation.Relative, 1).MeanDose.Unit;
 
 			//When calling GetVolumeAtDose, the dose must be in the same units as the system is set to
 

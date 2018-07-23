@@ -147,7 +147,7 @@ namespace VMS.TPS
 					VolumePresentation volPres = LimitUnits == "%" ? VolumePresentation.Relative : VolumePresentation.AbsoluteCm3;
 					
 					DoseValue.DoseUnit doseUnit = ConstraintUnits.ToLower().Contains("cgy") ? DoseValue.DoseUnit.cGy : DoseValue.DoseUnit.Gy;
-					
+
 					double vol = dosePres == DoseValuePresentation.Absolute ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, doseUnit), volPres) : _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, DoseValue.DoseUnit.Percent), volPres, _viewModel.PlanSumTotalDose);
 					double varVol = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(VariationConstraint, doseUnit), volPres, _viewModel.PlanSumTotalDose) : vol;
 
