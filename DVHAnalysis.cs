@@ -43,7 +43,7 @@ namespace VMS.TPS
 
 			myWindow = window;
 			window.KeyDown += KeyPressed;
-			window.Background = System.Windows.Media.Brushes.AliceBlue;
+			window.Background = System.Windows.Media.Brushes.DarkGray;
 
 			Start(context.Patient, PItemsInScope, openedPItem, context.Course, context.StructureSet, context.CurrentUser, window);
 		}
@@ -70,7 +70,8 @@ namespace VMS.TPS
 				MessageBox.Show("Please open a plan or plan sum before running this script", "No Active Plan", MessageBoxButton.OK, MessageBoxImage.Error);
 				throw new ApplicationException("Please open a plan or a plan sum before running this script");
 			}
-			window.Title = "DVH Analysis Window";
+			window.Title = "DVH Analysis - " + pat.LastName + ", " + pat.FirstName + " (" + pat.Id + ")";
+			window.SizeToContent = SizeToContent.WidthAndHeight;
 
 			MainWindow userControl = new MainWindow();
 			DVHViewModel viewModel = new DVHViewModel(pat, pItem, course, ss);

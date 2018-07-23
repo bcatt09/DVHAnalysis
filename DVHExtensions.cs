@@ -32,32 +32,38 @@ namespace VMS.TPS
 
 		public static double GetVolumeAtDose(this PlanningItem pitem, Structure structure, DoseValue dose, VolumePresentation requestedVolumePresentation, DoseValue? planSumRx = null)
 		{
-			DoseValue dosecGy;
+			//Get units that the dose is represented in within Eclipse
+			DoseValue.DoseUnit systemUnits = pitem.GetDVHCumulativeData(structure, dose.Unit == DoseValue.DoseUnit.Percent ? DoseValuePresentation.Relative : DoseValuePresentation.Absolute, VolumePresentation.Relative, 1).MeanDose.Unit;
 
-			if(dose.Unit == DoseValue.DoseUnit.Gy)		//for some reason GetVolumeAtDose only works with cGy (maybe because that's what our system is set to show dose as?)
+			//When calling GetVolumeAtDose, the dose must be in the same units as the system is set to
+
+			//If "dose" is in %, they should be equal, but we will convert them if they are not equal to each other
+			if (dose.Unit != systemUnits)
 			{
-				dosecGy = new DoseValue(dose.Dose * 100, DoseValue.DoseUnit.cGy);
-			}
-			else
-			{
-				dosecGy = dose;
+				if (dose.Unit == DoseValue.DoseUnit.cGy && systemUnits == DoseValue.DoseUnit.Gy)
+					dose = new DoseValue(dose.Dose / 100.0, DoseValue.DoseUnit.Gy);
+				else if (dose.Unit == DoseValue.DoseUnit.Gy && systemUnits == DoseValue.DoseUnit.cGy)
+					dose = new DoseValue(dose.Dose * 100.0, DoseValue.DoseUnit.cGy);
+				else
+					MessageBox.Show(String.Format("There was an error converting {0}, with units of {1} into the units used by Eclipse, {2}\n\nExpected values were cGy and Gy", dose.ToString(), dose.Unit.ToString(), systemUnits.ToString()), String.Format("Error during calculation of V{0}", dose.ToString()), MessageBoxButton.OK, MessageBoxImage.Warning);
 			}
 
+			//Now functions can be called as normal
 			if (pitem is PlanSetup)
 			{
-				return ((PlanSetup)pitem).GetVolumeAtDose(structure, dosecGy, requestedVolumePresentation);
+				return ((PlanSetup)pitem).GetVolumeAtDose(structure, dose, requestedVolumePresentation);
 			}
 			else
 			{
 				DVHData dvh = pitem.GetDVHCumulativeData(structure, DoseValuePresentation.Absolute, requestedVolumePresentation, 0.001);
 
-				if (dosecGy.Unit == DoseValue.DoseUnit.Percent)
+				if (dose.Unit == DoseValue.DoseUnit.Percent)
 				{
 					//MessageBox.Show(String.Format("Only absolute dose is supported for Plan Sums.  A prescription dose of {1} will be assumed to convert the V{0} for {2} into a percentage.", dosecGy.ToString(), planSumRx.ToString(), structure.Id), String.Format("Error during calculation of V{0}", dosecGy.ToString()), MessageBoxButton.OK, MessageBoxImage.Warning);
-					return DvhExtensions.VolumeAtDose(dvh, dosecGy.Dose, planSumRx);
+					return DvhExtensions.VolumeAtDose(dvh, dose.Dose, planSumRx);
 				}
 				else
-					return DvhExtensions.VolumeAtDose(dvh, dosecGy.Dose);
+					return DvhExtensions.VolumeAtDose(dvh, dose.Dose);
 			}
 		}
 

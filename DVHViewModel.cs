@@ -62,7 +62,7 @@ namespace VMS.TPS
 				SelectedPatient = pat,
 				SelectedPlanningItem = pItem,
 				SelectedCourse = course,
-				SelectedStructureSet = pItem is PlanSetup ? ss : (pItem as PlanSum).PlanSetups.First().StructureSet
+				SelectedStructureSet = pItem is PlanSetup ? ss : (pItem as PlanSum).StructureSet
 			};
 
 			_plans = new ObservableCollection<PlanInformation>();

@@ -6,53 +6,33 @@
              mc:Ignorable="d"
              xmlns:local="clr-namespace:VMS.TPS"
              Name="DVHAnalysisWindow" 
-             d:DesignHeight="512" Width="1212.223">
+             d:DesignHeight="512" d:DesignWidth="750">
 	<UserControl.Resources>
 		<DataGridTextColumn x:Key="VariationConstraintColumn" Header="Variation Constraint" Binding="{Binding VariationConstraintText}" Visibility="{Binding Source={x:Reference DVHAnalysisWindow}, Path=DataContext.VariationConstraintColumnVisibility}"/>
 		<DataGridTextColumn x:Key="VariationLimitColumn" Header="Variation Limit" Binding="{Binding VariationLimitText}" Visibility="{Binding Source={x:Reference DVHAnalysisWindow}, Path=DataContext.VariationLimitColumnVisibility}"/>
 		<DataTemplate x:Key="planDetailsTemplate">
-			<Border Name="border" BorderBrush="White" BorderThickness="1" Padding="5" Margin="5,5,5,10">
-				<Grid Background="AliceBlue">
-					<Grid.RowDefinitions>
-						<RowDefinition/>
-						<RowDefinition/>
-						<RowDefinition/>
-						<RowDefinition/>
-						<RowDefinition/>
-						<RowDefinition/>
-					</Grid.RowDefinitions>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition/>
-						<ColumnDefinition/>
-						<ColumnDefinition/>
-						<ColumnDefinition/>
-					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Path=PlanID}" FontWeight="Bold"/>
-					<TextBlock Grid.Row="1" Grid.Column="0" Text="Target Volume ID:"/>
-					<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=TargetVolumeID}"/>
-					<TextBlock Grid.Row="2" Grid.Column="0" Text="Total Dose Planned:"/>
-					<TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Path=TotalPlannedDose}"/>
-					<TextBlock Grid.Row="3" Grid.Column="0" Text="Dose / Fraction:"/>
-					<TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Path=DosePerFraction}"/>
-					<TextBlock Grid.Row="4" Grid.Column="0" Text="Number of Fractions:"/>
-					<TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Path=NumberOfFractions}"/>
-					<TextBlock Grid.Row="5" Grid.Column="0" Text="Prescribed Percentage:"/>
-					<TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Path=PrescribedPercentage}"/>
-
-
-					<TextBlock Grid.Row="1" Grid.Column="2" Text="Technique:"/>
-					<TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Path=Technique}"/>
-					<TextBlock Grid.Row="3" Grid.Column="2" Text="Approval Status:"/>
-					<TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding Path=ApprovalStatus}"/>
-					<TextBlock Grid.Row="4" Grid.Column="2" Text="Modification by:"/>
-					<TextBlock Grid.Row="4" Grid.Column="3" Text="{Binding Path=ModifiedBy}"/>
-					<TextBlock Grid.Row="5" Grid.Column="2" Text="Modification Date/Time:"/>
-					<TextBlock Grid.Row="5" Grid.Column="3" Text="{Binding Path=ModifiedTime}"/>
-				</Grid>
-			</Border>
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition/>
+					<RowDefinition/>
+					<RowDefinition/>
+					<RowDefinition/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="115"/>
+					<ColumnDefinition Width="75"/>
+				</Grid.ColumnDefinitions>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Path=PlanID}" FontWeight="Bold"/>
+				<TextBlock Grid.Row="1" Grid.Column="0" Text="Total Dose Planned:"/>
+				<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=TotalPlannedDose}"/>
+				<TextBlock Grid.Row="2" Grid.Column="0" Text="Dose / Fraction:"/>
+				<TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Path=DosePerFraction}"/>
+				<TextBlock Grid.Row="3" Grid.Column="0" Text="Number of Fractions:"/>
+				<TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Path=NumberOfFractions}"/>
+			</Grid>
 		</DataTemplate>
 	</UserControl.Resources>
-	<Grid Name="mainGrid" MinWidth="1024" MinHeight="512" Height="auto" Width="auto">
+	<Grid Name="mainGrid" Height="auto" Width="auto" MinWidth="700" HorizontalAlignment="Center" VerticalAlignment="Center">
 		<TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Patient Name:" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="10,35,0,0" TextWrapping="Wrap" Text="Patient ID:" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="10,60,0,0" TextWrapping="Wrap" Text="Course ID:" VerticalAlignment="Top"/>
@@ -63,14 +43,20 @@
 		<TextBlock HorizontalAlignment="Left" Margin="130,35,0,0" TextWrapping="Wrap" Text="{Binding Path=PatientID, Mode=OneWay}" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="130,60,0,0" TextWrapping="Wrap" Text="{Binding Path=CourseID, Mode=OneWay}" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="130,85,0,0" TextWrapping="Wrap" Text="{Binding Path=PlanID, Mode=OneWay}" VerticalAlignment="Top"/>
-		<TextBox HorizontalAlignment="Left" Margin="130,110,0,0" TextWrapping="Wrap" Text="{Binding PlanSumTotalDoseText}" VerticalAlignment="Top" Visibility="{Binding PlanSumDoseVisibility}"/>
+		<TextBox HorizontalAlignment="Left" Margin="130,110,0,0" TextWrapping="Wrap" Text="{Binding PlanSumTotalDoseText}" VerticalAlignment="Top" Visibility="{Binding PlanSumDoseVisibility}" KeyDown="TextBox_KeyDown"/>
 
-		<ListBox Height="auto" Margin="695,377,10,10" Name="PlanInfoListBox" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" HorizontalContentAlignment="Stretch" BorderBrush="White" MinHeight="10"/>
+		<ListBox HorizontalAlignment="Right" VerticalAlignment="Top" Height="83" Width="Auto" MinWidth="100" Background="LightGray" Name="PlanInfoListBox" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" MaxWidth="410" Margin="10,46,10,0">
+			<ListBox.ItemsPanel>
+				<ItemsPanelTemplate>
+					<VirtualizingStackPanel Width="Auto" HorizontalAlignment="Right" IsItemsHost="True" Orientation="Horizontal"/>
+				</ItemsPanelTemplate>
+			</ListBox.ItemsPanel>
+		</ListBox>
 
-		<ComboBox HorizontalAlignment="Left" Margin="303,10,0,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
-		<ComboBox HorizontalAlignment="Left" Margin="436,10,0,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Protocols}" SelectedItem="{Binding SelectedProtocol}"/>
+		<ComboBox Name="CategorySelect" HorizontalAlignment="Right" Margin="0,10,183,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
+		<ComboBox HorizontalAlignment="Right" Margin="0,10,58,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Protocols}" SelectedItem="{Binding SelectedProtocol}"/>
 
-		<DataGrid Name="DVHDataGrid" HorizontalAlignment="Left" Height="auto" Width="auto" Margin="10,142,0,0" VerticalAlignment="Top" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" GridLinesVisibility="None" MouseLeftButtonUp="dataGridMouseLeftButton">
+		<DataGrid Name="DVHDataGrid" Background="LightGray" HorizontalAlignment="Center" Height="auto" Width="auto" MinHeight="150" Margin="10,142,10,10" VerticalAlignment="Top" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" GridLinesVisibility="None" MouseLeftButtonUp="dataGridMouseLeftButton">
 			<DataGrid.Columns>
 				<DataGridTemplateColumn Header="Structure">
 					<DataGridTemplateColumn.CellTemplate>
@@ -101,21 +87,36 @@
 			</DataGrid.Columns>
 			<DataGrid.RowDetailsTemplate>
 				<DataTemplate>
-					<TextBlock>
+					<TextBlock Background="WhiteSmoke">
 						<TextBlock.Text>
-							<MultiBinding StringFormat="{}Endpoint: {0}&#x0a;Reference: {1}">
-								<Binding Path="Endpoint" />
+							<MultiBinding StringFormat="{}{0}{1}">
 								<Binding Path="Reference" />
+								<Binding Path="Endpoint" />
 							</MultiBinding>
 						</TextBlock.Text>
 					</TextBlock>
 				</DataTemplate>
 			</DataGrid.RowDetailsTemplate>
+			<DataGrid.RowBackground>
+				<SolidColorBrush Color="LightGray"/>
+			</DataGrid.RowBackground>
+			<DataGrid.Resources>
+				<SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="LightGray" />
+				<Style TargetType="{x:Type DataGridCell}">
+					<Style.Triggers>
+						<Trigger Property="DataGridCell.IsSelected" Value="True">
+							<Setter Property="Background" Value="LightGray" />
+							<Setter Property="Foreground" Value="Black" />
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</DataGrid.Resources>
 		</DataGrid>
-		<Canvas Margin="695,0,-191,159">
+		<Button Name="printButton" Content="Print" HorizontalAlignment="Right" Height="19" Margin="0,10,10,0" VerticalAlignment="Top" Width="35" Click="printButton_Click"/>
+		<!--Canvas Margin="695,0,-191,159">
 			<Border BorderThickness="1" BorderBrush="Black" Height="307" Canvas.Left="25" Canvas.Top="19" Width="465">
 				<Canvas x:Uid="DVHCanvas" x:Name="DVHCanvas" Margin="0,0,-1,-1"/>
 			</Border>
-		</Canvas>
+		</Canvas-->
 	</Grid>
 </UserControl>
