@@ -24,12 +24,17 @@ namespace VMS.TPS
 	/// </summary>
 	public partial class MainWindow : UserControl
 	{
+		// Create dummy PlotView to force OxyPlot.Wpf to be loaded
+		private static readonly PlotView PlotView = new PlotView();
+
+		private readonly DVHViewModel _vm;
+
 		public int prevSelectedRow = -1;
 
-		public MainWindow()
+		public MainWindow(DVHViewModel viewModel)
 		{
+			_vm = viewModel;
 			InitializeComponent();
-			//DVHCanvas.Children.Add(CreatePlotView());
 		}
 
 		// draw the DVH
@@ -79,6 +84,23 @@ namespace VMS.TPS
 				((TextBox)sender).MoveFocus(new TraversalRequest(FocusNavigationDirection.Previous));
 				Keyboard.ClearFocus();
 			}
+		}
+
+		private void Structure_OnChecked(object checkBoxObject, RoutedEventArgs e)
+		{
+			_vm.AddDvhCurve(GetStructure(checkBoxObject));
+		}
+
+		private void Structure_OnUnchecked(object checkBoxObject, RoutedEventArgs e)
+		{
+			_vm.RemoveDvhCurve(GetStructure(checkBoxObject));
+		}
+
+		private Structure GetStructure(object checkBoxObject)
+		{
+			var checkbox = (CheckBox)checkBoxObject;
+			var structure = (checkbox.DataContext as DVHStructure).structure;
+			return structure;
 		}
 
 

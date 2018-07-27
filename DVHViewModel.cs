@@ -13,6 +13,8 @@ using MigraDoc.Rendering;
 using System.Collections.ObjectModel;
 using System.Xml.Linq;
 using VMS.TPS.Common.Model.Types;
+using OxyPlot;
+using OxyPlot.Axes;
 
 namespace VMS.TPS
 {
@@ -50,9 +52,12 @@ namespace VMS.TPS
 		public Visibility VariationConstraintColumnVisibility { get { return _variationConstraintColumnVisibility; } set { _variationConstraintColumnVisibility = value; OnPropertyChanged("VariationConstraintColumnVisibility"); } }
 		public Visibility VariationLimitColumnVisibility { get { return _variationLimitColumnVisibility; } set { _variationLimitColumnVisibility = value; OnPropertyChanged("VariationLimitColumnVisibility"); } }
 		public Visibility PlanSumDoseVisibility { get { return _planSumDoseVisibility; } set { _planSumDoseVisibility = value; OnPropertyChanged("PlanSumDoseVisibility"); } }
-		//dvh
+		//constraint table
 		public ObservableCollection<DVHTableRow> DVHTable;
 		public bool InitialTableLoad { get { return _initialTableLoad; } }
+		//DVH
+		public IEnumerable<DVHStructure> DVHStructures { get; set; }
+		public PlotModel PlotModel { get; private set; }
 
 		public DVHViewModel(Patient pat, PlanningItem pItem, Course course, StructureSet ss)
 		{
@@ -93,7 +98,11 @@ namespace VMS.TPS
 			_protocols = ConstraintList.GetProtocols();
 			_selectedCategory = _categories.First();
 
-			//dvh
+			//DVH
+			PlotModel = CreatePlotModel();
+			DVHStructures = GetContouredStructures();
+
+			//constraints table
 			DVHTable = new ObservableCollection<DVHTableRow>();
 		}
 
@@ -156,6 +165,126 @@ namespace VMS.TPS
 			else
 			{
 				VariationLimitColumnVisibility = Visibility.Collapsed;
+			}
+		}
+
+		//DVH Functions
+
+		private PlotModel CreatePlotModel()
+		{
+			var plotModel = new PlotModel();
+			AddAxes(plotModel, _contextInfo);
+			plotModel.IsLegendVisible = true;
+			plotModel.LegendPlacement = LegendPlacement.Outside;
+			plotModel.LegendOrientation = LegendOrientation.Vertical;
+			plotModel.LegendPosition = LegendPosition.BottomCenter;
+			plotModel.LegendMaxHeight = 75;
+			return plotModel;
+		}
+
+		private static void AddAxes(PlotModel plotModel, ContextInformation context)
+		{
+			plotModel.Axes.Add(new LinearAxis
+			{
+				Title = "Dose [Gy]",
+				Position = AxisPosition.Bottom,
+				MajorGridlineStyle = LineStyle.Solid,
+				MinorGridlineStyle = LineStyle.Dot,
+				AbsoluteMinimum = 0,
+				AbsoluteMaximum = context.SelectedPlanningItem.Dose.DoseMax3D.Unit == DoseValue.DoseUnit.Percent ? context.SelectedPlanningItem.Dose.DoseMax3D.Dose * (context.SelectedPlanningItem as PlanSetup).TotalPrescribedDose.Dose / 100 : context.SelectedPlanningItem.Dose.DoseMax3D.Dose
+			});
+
+			plotModel.Axes.Add(new LinearAxis
+			{
+				Title = "Volume [%]",
+				Position = AxisPosition.Left,
+				MajorGridlineStyle = LineStyle.Solid,
+				MinorGridlineStyle = LineStyle.Dot,
+				AbsoluteMinimum = 0,
+				AbsoluteMaximum = 100
+			});
+		}
+
+		private IEnumerable<DVHStructure> GetContouredStructures()
+		{
+			List<DVHStructure> list = new List<DVHStructure>();
+
+			foreach (Structure struc in SelectedStructureSet.Structures)
+			{
+				if (!struc.IsEmpty && struc.DicomType != "SUPPORT" && struc.DicomType != "MARKER")
+					list.Add(new DVHStructure(struc, false));
+			}
+
+			return list as IEnumerable<DVHStructure>;
+		}
+
+		public void AddDvhCurve(Structure structure)
+		{
+			DVHData dvh = CalculateDvh(structure);
+			PlotModel.Series.Insert(0, CreateDvhSeries(structure, dvh));
+			UpdatePlot();
+		}
+
+		public void RemoveDvhCurve(Structure structure)
+		{
+			var series = FindSeries(structure.Id);
+			PlotModel.Series.Remove(series);
+			UpdatePlot();
+		}
+
+		private DVHData CalculateDvh(Structure structure)
+		{
+			return _contextInfo.SelectedPlanningItem.GetDVHCumulativeData(structure,
+				DoseValuePresentation.Absolute,
+				VolumePresentation.Relative, 0.01);
+		}
+
+		private OxyPlot.Series.Series CreateDvhSeries(Structure structure, DVHData dvh)
+		{
+			var series = new OxyPlot.Series.LineSeries { Tag = structure.Id, Title = structure.Id, Color = OxyColor.FromRgb(structure.Color.R,structure.Color.G,structure.Color.B) };
+			var points = dvh.CurveData.Select(CreateDataPoint);
+			series.Points.AddRange(points);
+			series.TrackerFormatString = "{0} " + Environment.NewLine + "{1}: {2:0.000} " + Environment.NewLine + "{3}: {4:0.0} ";
+			return series;
+		}
+
+		private DataPoint CreateDataPoint(DVHPoint p)
+		{
+			return new DataPoint(p.DoseValue.Dose, p.Volume);
+		}
+
+		private OxyPlot.Series.Series FindSeries(string structureId)
+		{
+			return PlotModel.Series.FirstOrDefault(x => (string)x.Tag == structureId);
+		}
+
+		private void UpdatePlot()
+		{
+			PlotModel.InvalidatePlot(true);
+		}
+	}
+
+	public class DVHStructure : INotifyPropertyChanged
+	{
+		private Boolean _onDVH;
+
+		public Structure structure { get; set; }
+		public Boolean OnDVH { get { return _onDVH; } set { _onDVH = value; OnPropertyChanged("OnDVH"); } }
+
+		public DVHStructure(Structure struc, Boolean DVH)
+		{
+			structure = struc;
+			_onDVH = DVH;
+		}
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		protected void OnPropertyChanged(string name)
+		{
+			PropertyChangedEventHandler handler = PropertyChanged;
+			if (handler != null)
+			{
+				handler(this, new PropertyChangedEventArgs(name));
 			}
 		}
 	}

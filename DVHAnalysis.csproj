@@ -39,6 +39,9 @@
     <Reference Include="MigraDoc.Rendering-WPF">
       <HintPath>.\MigraDoc.Rendering-WPF.dll</HintPath>
     </Reference>
+    <Reference Include="OxyPlot, Version=1.0.0.0, Culture=neutral, PublicKeyToken=638079a8f0bd61e9, processorArchitecture=MSIL">
+      <HintPath>packages\OxyPlot.Core.1.0.0\lib\net40-client\OxyPlot.dll</HintPath>
+    </Reference>
     <Reference Include="OxyPlot.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=75e952ba404cdbb0, processorArchitecture=MSIL">
       <HintPath>packages\OxyPlot.Wpf.1.0.0\lib\net40\OxyPlot.Wpf.dll</HintPath>
     </Reference>

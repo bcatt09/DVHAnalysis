@@ -2,11 +2,12 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:oxy="http://oxyplot.org/wpf"
              mc:Ignorable="d"
              xmlns:local="clr-namespace:VMS.TPS"
              Name="DVHAnalysisWindow" 
-             d:DesignHeight="512" d:DesignWidth="750">
+             d:DesignHeight="512" d:DesignWidth="1250">
 	<UserControl.Resources>
 		<DataGridTextColumn x:Key="VariationConstraintColumn" Header="Variation Constraint" Binding="{Binding VariationConstraintText}" Visibility="{Binding Source={x:Reference DVHAnalysisWindow}, Path=DataContext.VariationConstraintColumnVisibility}"/>
 		<DataGridTextColumn x:Key="VariationLimitColumn" Header="Variation Limit" Binding="{Binding VariationLimitText}" Visibility="{Binding Source={x:Reference DVHAnalysisWindow}, Path=DataContext.VariationLimitColumnVisibility}"/>
@@ -32,7 +33,11 @@
 			</Grid>
 		</DataTemplate>
 	</UserControl.Resources>
-	<Grid Name="mainGrid" Height="auto" Width="auto" MinWidth="700" HorizontalAlignment="Center" VerticalAlignment="Center">
+	<Grid Name="mainGrid" Height="auto" Width="auto" HorizontalAlignment="Center" VerticalAlignment="Center">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="750"/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
 		<TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Patient Name:" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="10,35,0,0" TextWrapping="Wrap" Text="Patient ID:" VerticalAlignment="Top"/>
 		<TextBlock HorizontalAlignment="Left" Margin="10,60,0,0" TextWrapping="Wrap" Text="Course ID:" VerticalAlignment="Top"/>
@@ -45,7 +50,7 @@
 		<TextBlock HorizontalAlignment="Left" Margin="130,85,0,0" TextWrapping="Wrap" Text="{Binding Path=PlanID, Mode=OneWay}" VerticalAlignment="Top"/>
 		<TextBox HorizontalAlignment="Left" Margin="130,110,0,0" TextWrapping="Wrap" Text="{Binding PlanSumTotalDoseText}" VerticalAlignment="Top" Visibility="{Binding PlanSumDoseVisibility}" KeyDown="TextBox_KeyDown"/>
 
-		<ListBox HorizontalAlignment="Right" VerticalAlignment="Top" Height="83" Width="Auto" MinWidth="100" Background="LightGray" Name="PlanInfoListBox" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" MaxWidth="410" Margin="10,46,10,0">
+		<ListBox Name="PlanInfoListBox" HorizontalAlignment="Right" VerticalAlignment="Top" Height="83" Width="Auto" MinWidth="100" Background="LightGray" ItemsSource="{Binding}" ItemTemplate="{StaticResource planDetailsTemplate}" MaxWidth="410" Margin="10,46,10,0">
 			<ListBox.ItemsPanel>
 				<ItemsPanelTemplate>
 					<VirtualizingStackPanel Width="Auto" HorizontalAlignment="Right" IsItemsHost="True" Orientation="Horizontal"/>
@@ -53,10 +58,10 @@
 			</ListBox.ItemsPanel>
 		</ListBox>
 
-		<ComboBox Name="CategorySelect" HorizontalAlignment="Right" Margin="0,10,183,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
-		<ComboBox HorizontalAlignment="Right" Margin="0,10,58,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Protocols}" SelectedItem="{Binding SelectedProtocol}"/>
+		<ComboBox Name="CategorySelect" HorizontalAlignment="Right" Margin="0,10,313,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
+		<ComboBox HorizontalAlignment="Right" Margin="0,10,58,0" VerticalAlignment="Top" Width="250" ItemsSource="{Binding Protocols}" SelectedItem="{Binding SelectedProtocol}"/>
 
-		<DataGrid Name="DVHDataGrid" Background="LightGray" HorizontalAlignment="Center" Height="auto" Width="auto" MinHeight="150" Margin="10,142,10,10" VerticalAlignment="Top" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" GridLinesVisibility="None" MouseLeftButtonUp="dataGridMouseLeftButton">
+		<DataGrid Name="DVHDataGrid" Background="LightGray" HorizontalAlignment="Center" Height="auto" Width="auto" MinHeight="100" Margin="10,142,10,10" VerticalAlignment="Top" ItemsSource="{Binding}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" GridLinesVisibility="None" MouseLeftButtonUp="dataGridMouseLeftButton">
 			<DataGrid.Columns>
 				<DataGridTemplateColumn Header="Structure">
 					<DataGridTemplateColumn.CellTemplate>
@@ -68,7 +73,7 @@
 				<DataGridTemplateColumn Header="Plan Structure">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<ComboBox SelectedItem="{Binding SelectedStructure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.Structures}" Visibility="{Binding StructureVisibility}" DropDownClosed="ComboBox_DropDownClosed" DropDownOpened="ComboBox_DropDownOpened" />
+							<ComboBox SelectedItem="{Binding SelectedStructure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Id" ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.Structures}" Visibility="{Binding StructureVisibility}" DropDownClosed="ComboBox_DropDownClosed" DropDownOpened="ComboBox_DropDownOpened" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
@@ -80,7 +85,7 @@
 				<DataGridTemplateColumn Header="Plan Result">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate>
-							<TextBlock Text="{Binding PlanResult}" Background="{Binding PlanResultColor}"/>
+							<TextBlock Text="{Binding PlanResult}" Background="{Binding PlanResultColor}" TextAlignment="Center"/>
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
@@ -113,10 +118,26 @@
 			</DataGrid.Resources>
 		</DataGrid>
 		<Button Name="printButton" Content="Print" HorizontalAlignment="Right" Height="19" Margin="0,10,10,0" VerticalAlignment="Top" Width="35" Click="printButton_Click"/>
-		<!--Canvas Margin="695,0,-191,159">
-			<Border BorderThickness="1" BorderBrush="Black" Height="307" Canvas.Left="25" Canvas.Top="19" Width="465">
-				<Canvas x:Uid="DVHCanvas" x:Name="DVHCanvas" Margin="0,0,-1,-1"/>
-			</Border>
-		</Canvas-->
+
+		<Grid Grid.Column="1" Height="auto" Width="auto" HorizontalAlignment="Center" VerticalAlignment="Center">
+			<Grid.RowDefinitions>
+				<RowDefinition/>
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+			<oxy:PlotView Name="DVHGraph" Grid.Row="0" VerticalAlignment="Top" Margin="0,10,10,10" HorizontalAlignment="Center" MinHeight="450" MinWidth="600" Model="{Binding PlotModel}" BorderBrush="LightGray" BorderThickness="2" Background="DimGray"/>
+
+			<ItemsControl Name="StructureList" Grid.Row="1" Margin="0,10,10,10" ItemsSource="{Binding DVHStructures}" HorizontalAlignment="Left" VerticalAlignment="Top">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<WrapPanel ItemWidth="200" MaxWidth="450" Margin="150,0,0,0"/>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<CheckBox Name="CheckBoxes" Content="{Binding structure.Id}" IsChecked="{Binding OnDVH, Mode=TwoWay}" Checked="Structure_OnChecked" Unchecked="Structure_OnUnchecked"/>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</Grid>
 	</Grid>
 </UserControl>

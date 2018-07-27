@@ -73,19 +73,14 @@ namespace VMS.TPS
 			window.Title = "DVH Analysis - " + pat.LastName + ", " + pat.FirstName + " (" + pat.Id + ")";
 			window.SizeToContent = SizeToContent.WidthAndHeight;
 
-			MainWindow userControl = new MainWindow();
 			DVHViewModel viewModel = new DVHViewModel(pat, pItem, course, ss);
+			MainWindow userControl = new MainWindow(viewModel);
 
 			window.Content = userControl;
 			window.DataContext = viewModel;
 			userControl.PlanInfoListBox.DataContext = viewModel.Plans;
 			userControl.DVHDataGrid.DataContext = viewModel.DVHTable;
-
-			/*DVHData dvhData = pItem.GetDVHCumulativeData((from s in (pItem as PlanSetup).StructureSet.Structures where s.Id == (pItem as PlanSetup).TargetVolumeID select s).First(),
-									DoseValuePresentation.Relative,
-									VolumePresentation.Relative, 0.1);
-
-			userControl.DrawDVH(dvhData);*/
+			//userControl.DVHGraph.DataContext = viewModel.PlotModel;
 		}
 	}
 }

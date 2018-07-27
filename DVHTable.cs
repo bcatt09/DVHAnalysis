@@ -103,6 +103,7 @@ namespace VMS.TPS
 			ComputePlanValues();
 			ComputePlanResult();
 
+			//only show the selected structure dropdown if it's the first time that it's being listed so far in the table
 			StructureVisibility = viewModel.DVHTable.Where(s => s.Structure == Structure).Count() > 0 ? Visibility.Hidden : Visibility.Visible;
 		}
 
@@ -219,6 +220,11 @@ namespace VMS.TPS
 					throw new FormatException("Invalid constraint type: " + ConstraintType + " for structure " + Structure);
 				}
 			}
+
+			//make it show up on the DVH
+			//if it is contoured
+			if (_viewModel.DVHStructures.Where(s => s.structure == SelectedStructure).Count() > 0)
+				_viewModel.DVHStructures.Where(s => s.structure == SelectedStructure).First().OnDVH = true;
 		}
 
 		private void ComputePlanResult()
@@ -477,7 +483,6 @@ namespace VMS.TPS
 				//recompute planned values
 				ComputePlanValues();
 				ComputePlanResult();
-
 			}
 		}
 
