@@ -19,12 +19,14 @@ namespace VMS.TPS
 		private PlanningItem _selectedPlanningItem;
 		private Course _selectedCourse;
 		private StructureSet _selectedStructureSet;
+		private User _currentUser;
 
 		public Patient SelectedPatient { get { return _selectedPatient; } set { _selectedPatient = value; OnPropertyChanged("SelectedPatient"); } }
 		public List<PlanningItem> PlanningItemsInScope { get { return _planningItemsInScope; } set { _planningItemsInScope = value; OnPropertyChanged("PlanningItemsInScope"); } }
 		public PlanningItem SelectedPlanningItem { get { return _selectedPlanningItem; } set { _selectedPlanningItem = value; OnPropertyChanged("SelectedPlanningItem"); } }
 		public Course SelectedCourse { get { return _selectedCourse; } set { _selectedCourse = value; OnPropertyChanged("SelectedCourse"); } }
 		public StructureSet SelectedStructureSet { get { return _selectedStructureSet; } set { _selectedStructureSet = value; OnPropertyChanged("SelectedStructureSet"); } }
+		public User CurrentUser { get; set; }
 
 		/// <summary>
 		/// this event triggers the UI to update the table, when a row changes

@@ -73,14 +73,13 @@ namespace VMS.TPS
 			window.Title = "DVH Analysis - " + pat.LastName + ", " + pat.FirstName + " (" + pat.Id + ")";
 			window.SizeToContent = SizeToContent.WidthAndHeight;
 
-			DVHViewModel viewModel = new DVHViewModel(pat, pItem, course, ss);
+			DVHViewModel viewModel = new DVHViewModel(pat, pItem, course, ss, currentUser);
 			MainWindow userControl = new MainWindow(viewModel);
 
 			window.Content = userControl;
 			window.DataContext = viewModel;
 			userControl.PlanInfoListBox.DataContext = viewModel.Plans;
 			userControl.DVHDataGrid.DataContext = viewModel.DVHTable;
-			//userControl.DVHGraph.DataContext = viewModel.PlotModel;
 		}
 	}
 }

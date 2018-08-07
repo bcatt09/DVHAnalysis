@@ -49,6 +49,16 @@ namespace VMS.TPS
 		}
 
 		/// <summary>
+		/// Gets the name of the given protocol
+		/// </summary>
+		public static string GetProtocolName(string protocol)
+		{
+			return (from prot in _protocolListRoot.Elements("protocol")
+					where (string)prot.Attribute("name") == protocol
+					select prot).Single().Attribute("study").Value;
+		}
+
+		/// <summary>
 		/// Gets the structure node
 		/// </summary>
 		public static XElement GetStructure(string structure, string protocol)

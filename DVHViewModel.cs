@@ -6,10 +6,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.ComponentModel;
 using VMS.TPS.Common.Model.API;
-using PdfSharp.Pdf;
-using MigraDoc.DocumentObjectModel;
-using MigraDoc.DocumentObjectModel.Tables;
-using MigraDoc.Rendering;
 using System.Collections.ObjectModel;
 using System.Xml.Linq;
 using VMS.TPS.Common.Model.Types;
@@ -38,6 +34,7 @@ namespace VMS.TPS
 		public string PatientName { get { return _contextInfo.SelectedPatient.LastName + ", " + _contextInfo.SelectedPatient.FirstName; } }
 		public string CourseID { get { return _contextInfo.SelectedCourse.Id; } }
 		public string PlanID { get { return _contextInfo.SelectedPlanningItem.Id; } }
+		public string CurrentUser { get { return _contextInfo.CurrentUser.Id; } }
 		public StructureSet SelectedStructureSet { get { return _contextInfo.SelectedStructureSet; } }
 		public PlanningItem SelectedPlanningItem { get { return _contextInfo.SelectedPlanningItem; } }
 		public IEnumerable<Structure> Structures { get { return SelectedStructureSet.Structures; } }
@@ -58,8 +55,10 @@ namespace VMS.TPS
 		//DVH
 		public IEnumerable<DVHStructure> DVHStructures { get; set; }
 		public PlotModel PlotModel { get; private set; }
+		//misc
+		public string Username { get; set; }
 
-		public DVHViewModel(Patient pat, PlanningItem pItem, Course course, StructureSet ss)
+		public DVHViewModel(Patient pat, PlanningItem pItem, Course course, StructureSet ss, User user)
 		{
 			//patient information
 			_contextInfo = new ContextInformation
@@ -67,7 +66,8 @@ namespace VMS.TPS
 				SelectedPatient = pat,
 				SelectedPlanningItem = pItem,
 				SelectedCourse = course,
-				SelectedStructureSet = pItem is PlanSetup ? ss : (pItem as PlanSum).StructureSet
+				SelectedStructureSet = pItem is PlanSetup ? ss : (pItem as PlanSum).StructureSet,
+				CurrentUser = user
 			};
 
 			_plans = new ObservableCollection<PlanInformation>();
@@ -104,6 +104,9 @@ namespace VMS.TPS
 
 			//constraints table
 			DVHTable = new ObservableCollection<DVHTableRow>();
+
+			//misc
+			Username = _contextInfo.CurrentUser.Id;
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

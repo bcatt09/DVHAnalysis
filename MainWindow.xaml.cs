@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,12 +12,14 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using VMS.TPS.Common.Model.API;
 using VMS.TPS.Common.Model.Types;
 using OxyPlot.Wpf;
-using System.Drawing;
+//using System.Drawing;
 using System.Drawing.Printing;
+using SimplePdfReport.Reporting;
+using SimplePdfReport.Reporting.MigraDoc;
+using MigraDoc.Rendering.Printing;
 
 namespace VMS.TPS
 {
@@ -96,7 +100,7 @@ namespace VMS.TPS
 			_vm.RemoveDvhCurve(GetStructure(checkBoxObject));
 		}
 
-		private Structure GetStructure(object checkBoxObject)
+		private Common.Model.API.Structure GetStructure(object checkBoxObject)
 		{
 			var checkbox = (CheckBox)checkBoxObject;
 			var structure = (checkbox.DataContext as DVHStructure).structure;
@@ -105,35 +109,24 @@ namespace VMS.TPS
 
 
 
-
-
-
-
-
-
-
-
-
-
-		//just for the print screen button but can be removed later for print to PDF
-
-		Bitmap memoryImage;
-		Window myWindow;
-
 		void printButton_Click(object sender, RoutedEventArgs e)
 		{
-			//getst the window to take a screenshot of
-			myWindow = Window.GetWindow(this);
+			if(_vm.SelectedProtocol == null)
+			{
+				MessageBox.Show("Please select an analysis protocol first", "No Protocol Selected", MessageBoxButton.OK, MessageBoxImage.Error);
+				return;
+			}
 
-			//grab screen image and print it
-			memoryImage = new Bitmap((int)myWindow.Width, (int)myWindow.Height);
-			Graphics gfxScreenshot = Graphics.FromImage(memoryImage);
-			gfxScreenshot.CopyFromScreen((int)myWindow.Left, (int)myWindow.Top, 0, 0, new System.Drawing.Size((int)myWindow.Width, (int)myWindow.Height), CopyPixelOperation.SourceCopy);
+			var reportService = new ReportPdf();
+			var reportData = CreateReportData();
 
 			System.Windows.Forms.PrintDialog printDlg = new System.Windows.Forms.PrintDialog();
-			PrintDocument printDoc = new PrintDocument();
-			printDoc.DocumentName = myWindow.Title;
-			printDoc.PrintPage += new PrintPageEventHandler(printDoc_PrintPage);
+			MigraDocPrintDocument printDoc = new MigraDocPrintDocument();
+			printDoc.Renderer = new MigraDoc.Rendering.DocumentRenderer(reportService.CreateReport(reportData));
+			printDoc.Renderer.PrepareDocument();
+			
+			printDoc.DocumentName = Window.GetWindow(this).Title;
+			//printDoc.PrintPage += new PrintPageEventHandler(printDoc_PrintPage);
 			printDlg.Document = printDoc;
 			printDlg.AllowSelection = true;
 			printDlg.AllowSomePages = true;
@@ -141,26 +134,51 @@ namespace VMS.TPS
 			if (printDlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 				printDoc.Print();
 		}
-
-		private void printDoc_PrintPage(Object sender, PrintPageEventArgs e)
+		
+		private ReportData CreateReportData()
 		{
-			System.Drawing.Rectangle printArea;
+			ReportData reportData = new ReportData();
 
-			//scale image
-			if (memoryImage.Width / e.MarginBounds.Width > memoryImage.Height / e.MarginBounds.Height)
-				printArea = new System.Drawing.Rectangle(0, 0, (int)((double)memoryImage.Width / (double)memoryImage.Width * (double)e.MarginBounds.Width), (int)((double)memoryImage.Height / (double)memoryImage.Width * (double)e.MarginBounds.Width));
-			else
-				printArea = new System.Drawing.Rectangle(0, 0, (int)((double)memoryImage.Width / (double)memoryImage.Height * (double)e.MarginBounds.Height), (int)((double)memoryImage.Height / (double)memoryImage.Height * (double)e.MarginBounds.Height));
+			reportData.Patient = new SimplePdfReport.Reporting.Patient
+			{
+				Id = _vm.PatientID,
+				Name = _vm.PatientName
+			};
 
-			int marginCenterX = e.MarginBounds.Left + e.MarginBounds.Width / 2;
-			int marginCenterY = e.MarginBounds.Top + e.MarginBounds.Height / 2;
-			int imageCenterX = printArea.Width / 2;
-			int imageCenterY = printArea.Height / 2;
+			reportData.User = new SimplePdfReport.Reporting.User
+			{
+				Username = _vm.CurrentUser
+			};
 
-			//shift it to the center of the page
-			printArea.Offset(marginCenterX - imageCenterX, marginCenterY - imageCenterY);
+			reportData.Plan = new SimplePdfReport.Reporting.Plan
+			{
+				Id = _vm.PlanID,
+				Course = _vm.CourseID,
+				Protocol = ConstraintList.GetProtocolName(_vm.SelectedProtocol)
+			};
 
-			e.Graphics.DrawImage(memoryImage, printArea);
+			reportData.DvhTable = new DVHTable();
+
+			reportData.DvhTable.Title = "DVH Analysis Report";
+
+			foreach(DVHTableRow row in _vm.DVHTable)
+			{
+				SimplePdfReport.Reporting.DVHTableRow newRow = new SimplePdfReport.Reporting.DVHTableRow();
+
+				newRow.StructureId = row.Structure ?? "";
+				newRow.PlanStructureId = row.SelectedStructure != null ? row.SelectedStructure.ToString() : "";
+				newRow.Constraint = row.ConstraintText ?? "";
+				newRow.VariationConstraint = row.VariationConstraintText ?? "";
+				newRow.Limit = row.LimitText ?? "";
+				newRow.VariationLimit = row.VariationLimitText ?? "";
+				newRow.PlanValue = row.PlanValueText ?? "";
+				newRow.PlanResult = row.PlanResult ?? "";
+				newRow.PlanResultColor = row.PlanResultColor;
+
+				reportData.DvhTable.Rows.Add(newRow);
+			}
+
+			return reportData;
 		}
 	}
 }

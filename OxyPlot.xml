@@ -17776,19 +17776,6 @@
             <param name="array">The two-dimensional array.</param>
             <param name="value">The value.</param>
         </member>
-        <member name="T:OxyPlot.TypeExtensions">
-            <summary>
-            Provides extension methods for types.
-            </summary>
-        </member>
-        <member name="M:OxyPlot.TypeExtensions.GetRuntimeProperty(System.Type,System.String)">
-            <summary>
-            Retrieves an object that represents a specified property.
-            </summary>
-            <param name="type">The type that contains the property.</param>
-            <param name="name">The name of the property.</param>
-            <returns>An object that represents the specified property, or null if the property is not found.</returns>
-        </member>
         <member name="T:OxyPlot.Conrec">
             <summary>
             Provides functionality to create contours from a triangular mesh.
