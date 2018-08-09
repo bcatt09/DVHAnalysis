@@ -166,7 +166,7 @@ namespace VMS.TPS
 				SimplePdfReport.Reporting.DVHTableRow newRow = new SimplePdfReport.Reporting.DVHTableRow();
 
 				newRow.StructureId = row.Structure ?? "";
-				newRow.PlanStructureId = row.SelectedStructure != null ? row.SelectedStructure.ToString() : "";
+				newRow.PlanStructureId = row.SelectedStructure != null ? row.SelectedStructure.Id : "";
 				newRow.Constraint = row.ConstraintText ?? "";
 				newRow.VariationConstraint = row.VariationConstraintText ?? "";
 				newRow.Limit = row.LimitText ?? "";
