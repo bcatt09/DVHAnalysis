@@ -150,18 +150,34 @@ namespace VMS.TPS
 				Username = _vm.CurrentUser
 			};
 
-			reportData.Plan = new SimplePdfReport.Reporting.Plan
+			reportData.Plans = new SimplePdfReport.Reporting.Plans
 			{
+
 				Id = _vm.PlanID,
-				Course = _vm.CourseID,
-				Protocol = ConstraintList.GetProtocolName(_vm.SelectedProtocol)
+				Course = _vm.CourseID ?? "",
+				Protocol = ConstraintList.GetProtocolName(_vm.SelectedProtocol),
+				PlanList = new List<Plan>()
 			};
 
-			reportData.DvhTable = new DVHTable();
+			foreach(PlanInformation plan in _vm.Plans)
+			{
+				SimplePdfReport.Reporting.Plan newPlan = new SimplePdfReport.Reporting.Plan
+				{
+					Id = plan.PlanID,
+					TotalDose = plan.TotalPlannedDose,
+					DosePerFx = plan.DosePerFraction,
+					Fractions = plan.NumberOfFractions
+				};
 
-			reportData.DvhTable.Title = "DVH Analysis Report";
+				reportData.Plans.PlanList.Add(newPlan);
+			}
 
-			foreach(DVHTableRow row in _vm.DVHTable)
+			reportData.DvhTable = new DVHTable
+			{
+				Title = "DVH Analysis Report"
+			};
+
+			foreach (DVHTableRow row in _vm.DVHTable)
 			{
 				SimplePdfReport.Reporting.DVHTableRow newRow = new SimplePdfReport.Reporting.DVHTableRow();
 

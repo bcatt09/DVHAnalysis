@@ -9,7 +9,7 @@ namespace SimplePdfReport.Reporting.MigraDoc.Internal
         public void Add(Section section, ReportData data)
         {
             AddHeading(section, data.DvhTable);
-            AddStructures(section, data.Plan, data.DvhTable.Rows);
+            AddStructures(section, data.Plans, data.DvhTable.Rows);
         }
 
         private void AddHeading(Section section, DVHTable dvhTable)
@@ -17,9 +17,9 @@ namespace SimplePdfReport.Reporting.MigraDoc.Internal
             section.AddParagraph(dvhTable.Title, StyleNames.Heading1);
         }
 
-        private void AddStructures(Section section, Plan plan, List<DVHTableRow> structures)
+        private void AddStructures(Section section, Plans plans, List<DVHTableRow> structures)
         {
-            AddTableTitle(section, plan.Protocol);
+            AddTableTitle(section, plans.Protocol);
             AddStructureTable(section, structures);
         }
 

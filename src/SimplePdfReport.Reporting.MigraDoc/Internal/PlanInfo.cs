@@ -41,17 +41,31 @@ namespace SimplePdfReport.Reporting.MigraDoc.Internal
 
         private void AddLeftInfo(Cell cell, ReportData data)
         {
-            // Add patient name and sex symbol
-            var p1 = cell.AddParagraph();
-            p1.Style = CustomStyles.PatientName;
-            p1.AddText(data.Patient.Name);
-            p1.AddSpace(2);
-			//AddHospitalLogo(p1);
+			//add odd numbered plans
+			int i = 0;
 
-            // Add patient ID
-            var p2 = cell.AddParagraph();
-            p2.AddText("ID: ");
-            p2.AddFormattedText(data.Patient.Id, TextFormat.Bold);
+			while(i<data.Plans.PlanList.Count)
+			{
+				var plan = data.Plans.PlanList[i];
+
+				var p1 = cell.AddParagraph();
+				p1.Style = CustomStyles.PatientName;
+				p1.AddFormattedText(plan.Id, TextFormat.Bold);
+
+				var p2 = cell.AddParagraph();
+				p2.AddText($"Total Planned Dose: {plan.TotalDose}");
+
+				var p3 = cell.AddParagraph();
+				p3.AddText($"Dose per Fraction: {plan.DosePerFx}");
+
+				var p4 = cell.AddParagraph();
+				p4.AddText($"Fractions: {plan.Fractions}");
+
+				if(i+2 < data.Plans.PlanList.Count)
+					cell.AddParagraph();
+
+				i += 2;
+			}
         }
 
         private void AddHospitalLogo(Paragraph p)
@@ -60,18 +74,32 @@ namespace SimplePdfReport.Reporting.MigraDoc.Internal
         }
 
         private void AddRightInfo(Cell cell, ReportData data)
-        {
-            var p = cell.AddParagraph();
+		{
+			//add even numbered plans
+			int i = 1;
 
-			// Add course
-			p.AddText("Course: ");
-			p.AddFormattedText(data.Plan.Course, TextFormat.Bold);
+			while (i < data.Plans.PlanList.Count)
+			{
+				var plan = data.Plans.PlanList[i];
 
-			p.AddLineBreak();
+				var p1 = cell.AddParagraph();
+				p1.Style = CustomStyles.PatientName;
+				p1.AddFormattedText(plan.Id, TextFormat.Bold);
 
-			// Add plan
-			p.AddText("Plan: ");
-			p.AddFormattedText(data.Plan.Id, TextFormat.Bold);
+				var p2 = cell.AddParagraph();
+				p2.AddText($"Total Planned Dose: {plan.TotalDose}");
+
+				var p3 = cell.AddParagraph();
+				p3.AddText($"Dose per Fraction: {plan.DosePerFx}");
+
+				var p4 = cell.AddParagraph();
+				p4.AddText($"Fractions: {plan.Fractions}");
+
+				if (i + 2 < data.Plans.PlanList.Count)
+					cell.AddParagraph();
+
+				i += 2;
+			}
 		}
     }
 }

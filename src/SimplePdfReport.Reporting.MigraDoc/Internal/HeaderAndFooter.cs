@@ -7,11 +7,11 @@ namespace SimplePdfReport.Reporting.MigraDoc.Internal
     {
         public void Add(Section section, ReportData data)
         {
-            //AddHeader(section, data.Patient);
+            AddHeader(section, data.Patient, data.Plans);
             AddFooter(section, data.User);
         }
 
-        private void AddHeader(Section section, Patient patient)
+        private void AddHeader(Section section, Patient patient, Plans plans)
         {
             var header = section.Headers.Primary.AddParagraph();
 			header.Style = StyleNames.Header;
@@ -19,7 +19,7 @@ namespace SimplePdfReport.Reporting.MigraDoc.Internal
 
             header.AddText($"{patient.Name} ({patient.Id})");
             header.AddTab();
-            header.AddText("DVH Analysis Report");
+            header.AddText(plans.Id);
         }
 
         private void AddFooter(Section section, User user)

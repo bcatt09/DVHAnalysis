@@ -53,9 +53,16 @@ namespace VMS.TPS
 		/// </summary>
 		public static string GetProtocolName(string protocol)
 		{
-			return (from prot in _protocolListRoot.Elements("protocol")
-					where (string)prot.Attribute("name") == protocol
-					select prot).Single().Attribute("study").Value;
+			//if selected protocol has a "study" name return that
+			if ((from prot in _protocolListRoot.Elements("protocol")
+				 where (string)prot.Attribute("name") == protocol
+				 select prot).Single().Attribute("study").Value != null)
+				return (from prot in _protocolListRoot.Elements("protocol")
+						where (string)prot.Attribute("name") == protocol
+						select prot).Single().Attribute("study").Value;
+			//otherwise just return the name in the dropdown list
+			else
+				return protocol;
 		}
 
 		/// <summary>
