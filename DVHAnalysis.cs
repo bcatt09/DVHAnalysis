@@ -20,13 +20,11 @@ namespace VMS.TPS
 		{
 			if (context.PlanSetup == null && context.PlanSumsInScope == null)
 			{
-				MessageBox.Show("Please open a plan or plan sum before running this script", "No Active Plan", MessageBoxButton.OK, MessageBoxImage.Error);
-				throw new ApplicationException("No active plan");
+				throw new ApplicationException("Please open a plan or plan sum before running this script");
 			}
 			if (context.PlanSetup == null && context.PlanSumsInScope.Count() > 1)
 			{
-				MessageBox.Show("Please close all other plan sums before running this script", "Multiple Plan Sums Detected", MessageBoxButton.OK, MessageBoxImage.Error);
-				throw new ApplicationException("Please close all other plan sums before running this script");
+				throw new ApplicationException("Please right click and close all other plan sums before running this script");
 			}
 			List<PlanningItem> PItemsInScope = new List<PlanningItem>();
 			foreach (var pitem in context.PlansInScope)

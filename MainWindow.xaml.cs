@@ -154,7 +154,7 @@ namespace VMS.TPS
 			{
 
 				Id = _vm.PlanID,
-				Course = _vm.CourseID ?? "",
+				Course = _vm.CourseID == "" ? "" : $" ({_vm.CourseID})",
 				Protocol = ConstraintList.GetProtocolName(_vm.SelectedProtocol),
 				PlanList = new List<Plan>()
 			};

@@ -32,7 +32,7 @@ namespace VMS.TPS
 		//patient and plan information to be displayed
 		public string PatientID { get { return _contextInfo.SelectedPatient.Id; } }
 		public string PatientName { get { return _contextInfo.SelectedPatient.LastName + ", " + _contextInfo.SelectedPatient.FirstName; } }
-		public string CourseID { get { return _contextInfo.SelectedCourse.Id; } }
+		public string CourseID { get { return _contextInfo.SelectedCourse == null ? "" :_contextInfo.SelectedCourse.Id; } }
 		public string PlanID { get { return _contextInfo.SelectedPlanningItem.Id; } }
 		public string CurrentUser { get { return _contextInfo.CurrentUser.Id; } }
 		public StructureSet SelectedStructureSet { get { return _contextInfo.SelectedStructureSet; } }

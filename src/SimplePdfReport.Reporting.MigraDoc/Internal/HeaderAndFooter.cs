@@ -19,7 +19,7 @@ namespace SimplePdfReport.Reporting.MigraDoc.Internal
 
             header.AddText($"{patient.Name} ({patient.Id})");
             header.AddTab();
-            header.AddText(plans.Id);
+            header.AddText($"{plans.Id}{plans.Course}");
         }
 
         private void AddFooter(Section section, User user)
