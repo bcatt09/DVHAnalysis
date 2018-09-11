@@ -18,7 +18,9 @@ namespace VMS.TPS
 		Volume = 1,
 		Mean = 2,
 		Max = 3,
-		Min = 4
+		Min = 4,
+		ColdVolume = 5,
+		CI = 6
 	}
 
 	public class DVHTableRow : INotifyPropertyChanged
@@ -86,9 +88,9 @@ namespace VMS.TPS
 			LimitText = constraint.Attribute("goal").Value == "greater" ? "> " + constraint.Attribute("limit").Value : "< " + constraint.Attribute("limit").Value;
 			VariationLimitText = constraint.Attribute("variation-limit") == null ? "" : constraint.Attribute("goal").Value == "greater" ? "> " + constraint.Attribute("variation-limit").Value : "< " + constraint.Attribute("variation-limit").Value;
 			ConstraintType = GetConstraintType(constraint);
-			Constraint = (ConstraintType == ConstraintType.Dose || ConstraintType == ConstraintType.Volume) ? ConstraintParsing.ExtractNumber(constraint.Attribute("constraint").Value) : -1;
+			Constraint = (ConstraintType == ConstraintType.Dose || ConstraintType == ConstraintType.Volume || ConstraintType == ConstraintType.ColdVolume || ConstraintType == ConstraintType.CI) ? ConstraintParsing.ExtractNumber(constraint.Attribute("constraint").Value) : -1;
 			VariationConstraint = constraint.Attribute("variation-constraint") == null ? -1 : ConstraintParsing.ExtractNumber(constraint.Attribute("variation-constraint").Value);
-			ConstraintUnits = (ConstraintType == ConstraintType.Dose || ConstraintType == ConstraintType.Volume) ? ConstraintParsing.ExtractUnits(constraint.Attribute("constraint").Value) : "";
+			ConstraintUnits = (ConstraintType == ConstraintType.Dose || ConstraintType == ConstraintType.Volume || ConstraintType == ConstraintType.ColdVolume || ConstraintType == ConstraintType.CI) ? ConstraintParsing.ExtractUnits(constraint.Attribute("constraint").Value) : "";
 			GoalGreaterThan = ConstraintList.GetConstraintGoal(constraint);
 			Limit = ConstraintParsing.ExtractNumber(constraint.Attribute("limit").Value);
 			VariationLimit = constraint.Attribute("variation-limit") == null ? -1 : ConstraintParsing.ExtractNumber(constraint.Attribute("variation-limit").Value);
@@ -213,6 +215,48 @@ namespace VMS.TPS
 					PlanValueText = val.ToString();
 					PlanVariationValue = varVal.Dose;
 					PlanVariationValueText = varVal.ToString();
+				}
+				else if (ConstraintType == ConstraintType.ColdVolume)
+				{
+					DoseValuePresentation dosePres = ConstraintUnits == "%" ? DoseValuePresentation.Relative : DoseValuePresentation.Absolute;
+					VolumePresentation volPres = LimitUnits == "%" ? VolumePresentation.Relative : VolumePresentation.AbsoluteCm3;
+
+					DoseValue.DoseUnit doseUnit = ConstraintUnits.ToLower().Contains("cgy") ? DoseValue.DoseUnit.cGy : DoseValue.DoseUnit.Gy;
+
+					double vol = dosePres == DoseValuePresentation.Absolute ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, doseUnit), volPres) : _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, DoseValue.DoseUnit.Percent), volPres, _viewModel.PlanSumTotalDose);
+					double varVol = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(VariationConstraint, doseUnit), volPres, _viewModel.PlanSumTotalDose) : vol;
+
+					//this is the normal volume getting the requested dose, to get cold volume we want the remaining volume in the structure getting less than the requested dose, so subtract it from the total structure volume
+					vol = volPres == VolumePresentation.AbsoluteCm3 ? SelectedStructure.Volume - vol : 100 - vol;
+					varVol = volPres == VolumePresentation.AbsoluteCm3 ? SelectedStructure.Volume - varVol : 100 - varVol;
+
+					PlanValue = Math.Round(vol, 1);
+					PlanValueText = PlanValue.ToString() + (volPres == VolumePresentation.Relative ? " %" : " cc");
+					PlanVariationValue = Math.Round(varVol, 1);
+					PlanVariationValueText = PlanVariationValue.ToString() + (volPres == VolumePresentation.Relative ? " %" : " cc");
+				}
+				else if (ConstraintType == ConstraintType.CI)
+				{
+					Structure External;
+
+					if (_viewModel.SelectedStructureSet.Structures.Where(struc => struc.Id == "External" || struc.Id == "BODY" || struc.Id == "Body").Count() > 0)
+						External = _viewModel.SelectedStructureSet.Structures.Where(struc => struc.Id == "External" || struc.Id == "BODY" || struc.Id == "Body").FirstOrDefault();
+					else
+					{
+						MessageBox.Show("No body contour found for isodose volumes for CI calculation", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+						throw new FormatException("No body contour found for isodose volumes for CI calculation");
+					}
+
+					DoseValuePresentation dosePres = ConstraintUnits == "%" ? DoseValuePresentation.Relative : DoseValuePresentation.Absolute;
+					VolumePresentation volPres = VolumePresentation.AbsoluteCm3;
+
+					DoseValue.DoseUnit doseUnit = ConstraintUnits.ToLower().Contains("cgy") ? DoseValue.DoseUnit.cGy : DoseValue.DoseUnit.Gy;
+
+					double vol = dosePres == DoseValuePresentation.Absolute ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(External, new DoseValue(Constraint, doseUnit), volPres) : _viewModel.SelectedPlanningItem.GetVolumeAtDose(External, new DoseValue(Constraint, DoseValue.DoseUnit.Percent), volPres, _viewModel.PlanSumTotalDose);
+					double varVol = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(External, new DoseValue(VariationConstraint, doseUnit), volPres, _viewModel.PlanSumTotalDose) : vol;
+
+					PlanValue = Math.Round(vol/SelectedStructure.Volume, 1);
+					PlanValueText = PlanValue.ToString();
 				}
 				else
 				{
@@ -354,11 +398,15 @@ namespace VMS.TPS
 		{
 			string constr = constraint.Attribute("constraint").Value;
 
-			//searches for the constraint type by checking the beginning of the string for a D or V followed by a number or Mean/Max/Min
+			//searches for the constraint type by checking the beginning of the string for a D or V or CV followed by a number or Mean/Max/Min
 			if (Regex.Match(constr, @"D\d").Success)
 				return ConstraintType.Dose;
+			else if (Regex.Match(constr, @"CV\d").Success || Regex.Match(constr, @"MVS\d").Success)		//Cold Volume / Min Volume Spared
+				return ConstraintType.ColdVolume;
 			else if (Regex.Match(constr, @"V\d").Success)
 				return ConstraintType.Volume;
+			else if (Regex.Match(constr, @"CI\d").Success || Regex.Match(constr, @"R\d").Success)		//Conformity Index / R% (used in RTOGs)
+				return ConstraintType.CI;
 			else if (Regex.Match(constr, "Mean", RegexOptions.IgnoreCase).Success)
 				return ConstraintType.Mean;
 			else if (Regex.Match(constr, "Max", RegexOptions.IgnoreCase).Success)
@@ -505,34 +553,52 @@ namespace VMS.TPS
 	{
 		public static double ExtractNumber(String str)
 		{
-			Match match = Regex.Match(str, @"(?:D|V)?\x20*(\d+\.?\d*)\x20*(?:%|Gy|cGy|cc)", RegexOptions.IgnoreCase);
+			Match matchUnits = Regex.Match(str, @"(?:D|V|CV|MVS)?\x20*(\d+\.?\d*)\x20*(?:%|Gy|cGy|cc)", RegexOptions.IgnoreCase);
+			Match matchUnitless = Regex.Match(str, @"(?:CI|R)?\x20*(\d+\.?\d*)", RegexOptions.IgnoreCase);
 
-			if (!match.Success)
+			if (matchUnits.Success)
 			{
-				MessageBox.Show("D/V, number, or unit could not be found: " + str, "Incorrect Constraint Format", MessageBoxButton.OK, MessageBoxImage.Error);
-				throw new FormatException("Incorrect constraint format, number could not be found: " + str);
+				if (Double.TryParse(matchUnits.Groups[1].Value, out double returnVal))
+					return returnVal;
+				else
+				{
+					MessageBox.Show("Could not parse the extracted number, " + matchUnits.Value + ", to a double", "Incorrect Number Format", MessageBoxButton.OK, MessageBoxImage.Error);
+					throw new FormatException("Could not parse the extracted number, " + matchUnits.Value + ", to a double");
+				}
 			}
-
-			if (Double.TryParse(match.Groups[1].Value, out double returnVal))
-				return returnVal;
+			else if (matchUnitless.Success)
+			{
+				if (Double.TryParse(matchUnitless.Groups[1].Value, out double returnVal))
+					return returnVal;
+				else
+				{
+					MessageBox.Show("Could not parse the extracted number, " + matchUnitless.Value + ", to a double", "Incorrect Number Format", MessageBoxButton.OK, MessageBoxImage.Error);
+					throw new FormatException("Could not parse the extracted number, " + matchUnitless.Value + ", to a double");
+				}
+			}
 			else
 			{
-				MessageBox.Show("Could not parse the extracted number, " + match.Value + ", to a double", "Incorrect Number Format", MessageBoxButton.OK, MessageBoxImage.Error);
-				throw new FormatException("Could not parse the extracted number, " + match.Value + ", to a double");
+				MessageBox.Show("D/V/CV/CI, number, or unit could not be found: " + str, "Incorrect Constraint Format", MessageBoxButton.OK, MessageBoxImage.Error);
+				throw new FormatException("Incorrect constraint format, number could not be found: " + str);
 			}
 		}
 
 		public static string ExtractUnits(String str)
 		{
-			Match match = Regex.Match(str, @"(?:D|V)?\x20*\d+\.?\d*\x20*(%|Gy|cGy|cc)", RegexOptions.IgnoreCase);
+			Match matchUnits = Regex.Match(str, @"(?:D|V|CV|MVS)?\x20*\d+\.?\d*\x20*(%|Gy|cGy|cc)", RegexOptions.IgnoreCase);
+			Match matchUnitless = Regex.Match(str, @"(?:CI|R)?\x20*(\d+\.?\d*)", RegexOptions.IgnoreCase);
 
-			if (!match.Success)
+			if (matchUnits.Success)
+				return matchUnits.Groups[1].Value;
+			else if (matchUnitless.Success)
+				return "";
+			else
 			{
-				MessageBox.Show("D/V, number, or units could not be found: " + str, "Invalid Constraint Format", MessageBoxButton.OK, MessageBoxImage.Error);
+				MessageBox.Show("D/V/CV/CI, number, or units could not be found: " + str, "Invalid Constraint Format", MessageBoxButton.OK, MessageBoxImage.Error);
 				throw new FormatException("Units could not be found: " + str);
 			}
 
-			return match.Groups[1].Value;
+			
 		}
 	}
 }
