@@ -69,16 +69,13 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="VMS.TPS.Common.Model.API">
-      <HintPath>P:\Eclipse Scripts API\Documentation\Files from fat client\esapi\VMS.TPS.Common.Model.API.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="VMS.TPS.Common.Model.API, Version=1.0.300.11, Culture=neutral, PublicKeyToken=305b81e210ec4b89, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\VMS.TPS.Common.Model.API.dll</HintPath>
     </Reference>
-    <Reference Include="VMS.TPS.Common.Model.APIExtensions">
-      <HintPath>P:\Eclipse Scripts API\Documentation\Files from fat client\esapi\VMS.TPS.Common.Model.APIExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="VMS.TPS.Common.Model.Types">
-      <HintPath>P:\Eclipse Scripts API\Documentation\Files from fat client\esapi\VMS.TPS.Common.Model.Types.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="VMS.TPS.Common.Model.Types, Version=1.0.300.11, Culture=neutral, PublicKeyToken=305b81e210ec4b89, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\VMS.TPS.Common.Model.Types.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />

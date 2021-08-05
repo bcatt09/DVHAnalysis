@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -9,7 +10,8 @@ namespace VMS.TPS
 	//class that handles getting values of constraints from the xml file for comparing doses
 	public static class  ConstraintList
 	{
-		private static String xmlFileLocation = @"\\10.71.248.61\va_data$\ESAPI\Constraints.xml";
+		private static String exeDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+		private static String xmlFileLocation = $@"{exeDirectory}\Constraints.xml";
 		private static XElement _protocolListRoot = XElement.Load(xmlFileLocation);
 
 		/// <summary>

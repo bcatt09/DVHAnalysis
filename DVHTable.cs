@@ -101,9 +101,13 @@ namespace VMS.TPS
 			if (Endpoint != "" && Reference != "")
 				Reference += "\n";
 
-			//compute results
-			ComputePlanValues();
-			ComputePlanResult();
+			try
+			{
+				//compute results
+				ComputePlanValues();
+				ComputePlanResult();
+			}
+			catch { }
 
 			//only show the selected structure dropdown if it's the first time that it's being listed so far in the table
 			StructureVisibility = viewModel.DVHTable.Where(s => s.Structure == Structure).Count() > 0 ? Visibility.Hidden : Visibility.Visible;
@@ -124,6 +128,8 @@ namespace VMS.TPS
 				PlanResult = "Structure is a Patient Marker";
 			else
 			{
+				DoseValue.DoseUnit systemUnits = _viewModel.SelectedPlanningItem.GetDVHCumulativeData(SelectedStructure, DoseValuePresentation.Absolute, VolumePresentation.Relative, 1).MeanDose.Unit;
+
 				if (ConstraintType == ConstraintType.Dose)
 				{
 					VolumePresentation volPres = ConstraintUnits == "%" ? VolumePresentation.Relative : VolumePresentation.AbsoluteCm3;
@@ -150,9 +156,24 @@ namespace VMS.TPS
 					VolumePresentation volPres = LimitUnits == "%" ? VolumePresentation.Relative : VolumePresentation.AbsoluteCm3;
 					
 					DoseValue.DoseUnit doseUnit = ConstraintUnits.ToLower().Contains("cgy") ? DoseValue.DoseUnit.cGy : DoseValue.DoseUnit.Gy;
+					double tempConstraint = 0;
+					if (doseUnit == systemUnits || doseUnit == DoseValue.DoseUnit.Percent)
+						tempConstraint = Constraint;
+					else if (doseUnit == DoseValue.DoseUnit.cGy)
+						tempConstraint = Constraint / 100;
+					else if (doseUnit == DoseValue.DoseUnit.Gy)
+						tempConstraint = Constraint * 100;
+					
+					double tempVariationConstraint = 0;
+					if (doseUnit == systemUnits || doseUnit == DoseValue.DoseUnit.Percent)
+						tempVariationConstraint = Constraint;
+					else if (doseUnit == DoseValue.DoseUnit.cGy)
+						tempVariationConstraint = Constraint / 100;
+					else if (doseUnit == DoseValue.DoseUnit.Gy)
+						tempVariationConstraint = Constraint * 100;
 
-					double vol = dosePres == DoseValuePresentation.Absolute ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, doseUnit), volPres) : _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, DoseValue.DoseUnit.Percent), volPres, _viewModel.PlanSumTotalDose);
-					double varVol = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(VariationConstraint, doseUnit), volPres, _viewModel.PlanSumTotalDose) : vol;
+					double vol = dosePres == DoseValuePresentation.Absolute ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(tempConstraint, systemUnits), volPres) : _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, DoseValue.DoseUnit.Percent), volPres, _viewModel.PlanSumTotalDose);
+					double varVol = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(tempVariationConstraint, systemUnits), volPres, _viewModel.PlanSumTotalDose) : vol;
 
 					PlanValue = Math.Round(vol, 1);
 					PlanValueText = PlanValue.ToString() + (volPres == VolumePresentation.Relative ? " %" : " cc");
@@ -222,9 +243,24 @@ namespace VMS.TPS
 					VolumePresentation volPres = LimitUnits == "%" ? VolumePresentation.Relative : VolumePresentation.AbsoluteCm3;
 
 					DoseValue.DoseUnit doseUnit = ConstraintUnits.ToLower().Contains("cgy") ? DoseValue.DoseUnit.cGy : DoseValue.DoseUnit.Gy;
+					double tempConstraint = 0;
+					if (doseUnit == systemUnits || doseUnit == DoseValue.DoseUnit.Percent)
+						tempConstraint = Constraint;
+					else if (doseUnit == DoseValue.DoseUnit.cGy)
+						tempConstraint = Constraint / 100;
+					else if (doseUnit == DoseValue.DoseUnit.Gy)
+						tempConstraint = Constraint * 100;
 
-					double vol = dosePres == DoseValuePresentation.Absolute ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, doseUnit), volPres) : _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, DoseValue.DoseUnit.Percent), volPres, _viewModel.PlanSumTotalDose);
-					double varVol = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(VariationConstraint, doseUnit), volPres, _viewModel.PlanSumTotalDose) : vol;
+					double tempVariationConstraint = 0;
+					if (doseUnit == systemUnits || doseUnit == DoseValue.DoseUnit.Percent)
+						tempVariationConstraint = Constraint;
+					else if (doseUnit == DoseValue.DoseUnit.cGy)
+						tempVariationConstraint = Constraint / 100;
+					else if (doseUnit == DoseValue.DoseUnit.Gy)
+						tempVariationConstraint = Constraint * 100;
+
+					double vol = dosePres == DoseValuePresentation.Absolute ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(tempConstraint, systemUnits), volPres) : _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(Constraint, DoseValue.DoseUnit.Percent), volPres, _viewModel.PlanSumTotalDose);
+					double varVol = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(SelectedStructure, new DoseValue(tempVariationConstraint, systemUnits), volPres, _viewModel.PlanSumTotalDose) : vol;
 
 					//this is the normal volume getting the requested dose, to get cold volume we want the remaining volume in the structure getting less than the requested dose, so subtract it from the total structure volume
 					vol = volPres == VolumePresentation.AbsoluteCm3 ? SelectedStructure.Volume - vol : 100 - vol;
@@ -251,9 +287,24 @@ namespace VMS.TPS
 					VolumePresentation volPres = VolumePresentation.AbsoluteCm3;
 
 					DoseValue.DoseUnit doseUnit = ConstraintUnits.ToLower().Contains("cgy") ? DoseValue.DoseUnit.cGy : DoseValue.DoseUnit.Gy;
+					double tempConstraint = 0;
+					if (doseUnit == systemUnits || doseUnit == DoseValue.DoseUnit.Percent)
+						tempConstraint = Constraint;
+					else if (doseUnit == DoseValue.DoseUnit.cGy)
+						tempConstraint = Constraint / 100;
+					else if (doseUnit == DoseValue.DoseUnit.Gy)
+						tempConstraint = Constraint * 100;
 
-					double vol = dosePres == DoseValuePresentation.Absolute ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(External, new DoseValue(Constraint, doseUnit), volPres) : _viewModel.SelectedPlanningItem.GetVolumeAtDose(External, new DoseValue(Constraint, DoseValue.DoseUnit.Percent), volPres, _viewModel.PlanSumTotalDose);
-					double varVol = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(External, new DoseValue(VariationConstraint, doseUnit), volPres, _viewModel.PlanSumTotalDose) : vol;
+					double tempVariationConstraint = 0;
+					if (doseUnit == systemUnits || doseUnit == DoseValue.DoseUnit.Percent)
+						tempVariationConstraint = Constraint;
+					else if (doseUnit == DoseValue.DoseUnit.cGy)
+						tempVariationConstraint = Constraint / 100;
+					else if (doseUnit == DoseValue.DoseUnit.Gy)
+						tempVariationConstraint = Constraint * 100;
+
+					double vol = dosePres == DoseValuePresentation.Absolute ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(External, new DoseValue(tempConstraint, systemUnits), volPres) : _viewModel.SelectedPlanningItem.GetVolumeAtDose(External, new DoseValue(Constraint, DoseValue.DoseUnit.Percent), volPres, _viewModel.PlanSumTotalDose);
+					double varVol = VariationConstraint != -1 ? _viewModel.SelectedPlanningItem.GetVolumeAtDose(External, new DoseValue(tempVariationConstraint, systemUnits), volPres, _viewModel.PlanSumTotalDose) : vol;
 
 					PlanValue = Math.Round(vol/SelectedStructure.Volume, 1);
 					PlanValueText = PlanValue.ToString();

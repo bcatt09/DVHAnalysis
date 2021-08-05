@@ -53,10 +53,10 @@ namespace VMS.TPS
 		public String PlanID { get { return _planSetup.Id; } }
 		public String Technique { get { return GetTechnique(_planSetup); } }
 		public String TargetVolumeID { get { return _planSetup.TargetVolumeID; } }
-		public String PrescribedPercentage { get { return (_planSetup.PrescribedPercentage * 100).ToString() + "%"; } }
-		public String DosePerFraction { get { return _planSetup.UniqueFractionation.PrescribedDosePerFraction.ToString(); } }
-		public String NumberOfFractions { get { return _planSetup.UniqueFractionation.NumberOfFractions.ToString(); } }
-		public String TotalPlannedDose { get { return _planSetup.TotalPrescribedDose.ToString(); } }
+		public String PrescribedPercentage { get { return (_planSetup.TreatmentPercentage * 100).ToString() + "%"; } }
+		public String DosePerFraction { get { return _planSetup.DosePerFraction.ToString(); } }
+		public String NumberOfFractions { get { return _planSetup.NumberOfFractions.ToString(); } }
+		public String TotalPlannedDose { get { return _planSetup.TotalDose.ToString(); } }
 		public String ApprovalStatus { get { return _planSetup.ApprovalStatus.ToString(); } }
 		public String ModifiedBy { get { return _planSetup.HistoryUserName; } }
 		public String ModifiedTime { get { return _planSetup.HistoryDateTime.ToString(); } }

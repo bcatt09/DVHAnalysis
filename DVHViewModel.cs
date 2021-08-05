@@ -86,7 +86,7 @@ namespace VMS.TPS
 				foreach (PlanSetup plan in (pItem as PlanSum).PlanSetups)
 				{
 					_plans.Add(new PlanInformation(plan));
-					tempPlanSumTotalDose = DvhExtensions.AddDoseValues(tempPlanSumTotalDose, plan.TotalPrescribedDose);
+					tempPlanSumTotalDose = DvhExtensions.AddDoseValues(tempPlanSumTotalDose, plan.TotalDose);
 				}
 
 				_planSumTotalDose = tempPlanSumTotalDose;
@@ -194,7 +194,7 @@ namespace VMS.TPS
 				MajorGridlineStyle = LineStyle.Solid,
 				MinorGridlineStyle = LineStyle.Dot,
 				AbsoluteMinimum = 0,
-				AbsoluteMaximum = context.SelectedPlanningItem.Dose.DoseMax3D.Unit == DoseValue.DoseUnit.Percent ? context.SelectedPlanningItem.Dose.DoseMax3D.Dose * (context.SelectedPlanningItem as PlanSetup).TotalPrescribedDose.Dose / 100 : context.SelectedPlanningItem.Dose.DoseMax3D.Dose
+				AbsoluteMaximum = context.SelectedPlanningItem.Dose.DoseMax3D.Unit == DoseValue.DoseUnit.Percent ? context.SelectedPlanningItem.Dose.DoseMax3D.Dose * (context.SelectedPlanningItem as PlanSetup).TotalDose.Dose / 100 : context.SelectedPlanningItem.Dose.DoseMax3D.Dose
 			});
 
 			plotModel.Axes.Add(new LinearAxis

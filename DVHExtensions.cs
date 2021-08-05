@@ -81,7 +81,7 @@ namespace VMS.TPS
 				DoseValue planSumTotalDose = new DoseValue(0, pitem.Dose.DoseMax3D.Unit);
 
 				foreach (PlanSetup psetup in ((PlanSum)pitem).PlanSetups)
-					planSumTotalDose += psetup.TotalPrescribedDose;
+					planSumTotalDose += psetup.TotalDose;
 
 				DoseValue temp = pitem.GetDVHCumulativeData(structure, DoseValuePresentation.Absolute, VolumePresentation.Relative, 1).MeanDose;
 
@@ -101,7 +101,7 @@ namespace VMS.TPS
 				DoseValue planSumTotalDose = new DoseValue(0, pitem.Dose.DoseMax3D.Unit);
 
 				foreach (PlanSetup psetup in ((PlanSum)pitem).PlanSetups)
-					planSumTotalDose += psetup.TotalPrescribedDose;
+					planSumTotalDose += psetup.TotalDose;
 
 				DoseValue temp = pitem.GetDVHCumulativeData(structure, DoseValuePresentation.Absolute, VolumePresentation.Relative, 1).MaxDose;
 
@@ -121,7 +121,7 @@ namespace VMS.TPS
 				DoseValue planSumTotalDose = new DoseValue(0, pitem.Dose.DoseMax3D.Unit);
 
 				foreach (PlanSetup psetup in ((PlanSum)pitem).PlanSetups)
-					planSumTotalDose += psetup.TotalPrescribedDose;
+					planSumTotalDose += psetup.TotalDose;
 
 				DoseValue temp = pitem.GetDVHCumulativeData(structure, DoseValuePresentation.Absolute, VolumePresentation.Relative, 1).MinDose;
 
